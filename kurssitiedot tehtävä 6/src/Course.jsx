@@ -11,6 +11,7 @@
     },0)
     return (
       <div>
+        <h1>Web development curriculum</h1>
       <h1>{alku1}</h1>
         {parts1.map(joku => <p key={joku.id}>{joku.name} {joku.exercises}</p>)}
         <p1>Total of {total1} exercises</p1>
