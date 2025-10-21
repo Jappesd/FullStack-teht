@@ -2,9 +2,9 @@ const Persons = ({personsToShow}) =>{
     return (
         <ul>
             {personsToShow.map(p => (
-                <p key={p.name}>
+                <li key={p.name}>
                     {p.name} {p.number}
-                </p>
+                </li>
             ))}
         </ul>
     )

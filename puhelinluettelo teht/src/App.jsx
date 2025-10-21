@@ -1,16 +1,29 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
-import './App.css'
+
+import axios from 'axios'
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-1234567' }
-  ]) 
+  const [persons, setPersons] = useState([]) 
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:3001/persons')
+      .then(r => {
+        console.log('Data received', r.data)
+        setPersons(r.data)
+      })
+  })
+
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+
+  
+
+
   const addPerson=(event)=>{
     event.preventDefault() //prevents reload on form submit
     //check if name already in persons
