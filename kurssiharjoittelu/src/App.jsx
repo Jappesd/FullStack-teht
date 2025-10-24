@@ -1,20 +1,56 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Note from './components/Note'
+import axios from 'axios'
+import noteService from './services/notes'
 
 const App = (props) => {
   const [showAll, setShowAll] = useState(true)
-  const [notes, setNotes]=useState(props.notes)
-  const [newNote, setNewNote] = useState('a new note...')
+  const [notes, setNotes]=useState([])
+  const [newNote, setNewNote] = useState('')
+  
+    useEffect(() => {
+      noteService
+        .getAll()
+        .then(response => {
+          setNotes(response.data)
+        })
+    },[])
+    
+  const toggleImportanceOf = (id) => {
+    const note = notes.find(n => n.id === id)
+    const changedNote = {...note, important: !note.important}
+    
+    noteService
+      .update(id, changedNote)
+      .then(response => {
+        setNotes(notes.map(n => n.id !== id ? n : response.data))
+      })
+      .catch(error => {
+        alert(`the note '${note.content}' was already deleted`)
+      })
+
+    }
   const addNote = (event) =>{
     event.preventDefault()
     const noteObject ={
       content:newNote,
       important:Math.random()>0.5,
-      id:String(notes.length +1),
+      
     }
-    setNotes(notes.concat(noteObject))
-    setNewNote('')
+    noteService
+      .create(noteObject)
+      .then(response => {
+        setNotes(notes.concat(response.data))
+        setNewNote('')
+      })
+    
+
+
+    
   }
+
+
+
   const handleNoteChange =(event) => {
     console.log(event.target.value)
     setNewNote(event.target.value)
@@ -25,13 +61,17 @@ const App = (props) => {
     <div>
       <h1>Notes</h1>
       <div>
-        <button onClick={() => setShowAll(!showAll)}>
+        <button onClick={() => {console.log('Toggling showAll to:', !showAll); setShowAll(!showAll)}}>
           show {showAll ? 'important' : 'all'}
         </button>
       </div>
       <ul>
         {notesToShow.map(note => 
-        <Note key={note.id} note={note}/>
+        <Note 
+          key={note.id} 
+          note={note}
+          toggleImportance={() => toggleImportanceOf(note.id)}
+        />
         )}
       </ul>
 
@@ -44,7 +84,7 @@ const App = (props) => {
 
     </div>
   )
-
 }
+
 
 export default App
