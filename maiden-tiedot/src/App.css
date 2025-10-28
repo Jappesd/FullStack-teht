@@ -1,0 +1,117 @@
+/* === Global Reset === */
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: #ffffff;
+  color: #222;
+  margin: 0;
+  padding: 2rem;
+}
+
+/* === Layout === */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* === Filter/Search === */
+.filter {
+  margin-bottom: 1.5rem;
+}
+
+.filter input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 1rem;
+}
+
+/* === Country List === */
+.country-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.country-item {
+  background: #fff;
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s ease;
+}
+
+.country-item:hover {
+  background: #f1f5f9;
+}
+
+/* === Buttons === */
+button {
+  padding: 0.4rem 0.8rem;
+  background: #007aff;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: #005fd1;
+}
+
+/* === Country Details === */
+.country-details {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  margin-top: 1rem;
+}
+
+.country-details h2 {
+  margin-top: 0;
+}
+
+.flag {
+  margin-top: 1rem;
+  max-width: 200px;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* === Weather Section === */
+.weather {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.country-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.country-text {
+  flex: 1;
+  min-width: 250px;
+}
+.country-flag {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.country-flag .flag {
+  max-width: 220px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba (0, 0, 0, 0.1);
+}
