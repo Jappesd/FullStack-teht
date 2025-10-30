@@ -30,6 +30,7 @@ const CountryList = ({ countries, filter, onShow }) => {
     );
   }
   if (filtered.length === 1) {
+    debug("filtered length = 1", filtered[0]);
     return <Country country={filtered[0]} />;
   }
   return <p>No matches</p>;

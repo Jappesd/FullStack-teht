@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Filter from "./components/Filter";
 import CountryList from "./components/CountryList";
-import Country from "./components/Country";
+import Country from "./components/Country.jsx";
 import { debug } from "./components/debug";
 const App = () => {
   const [maat, setMaat] = useState([]);
   const [haku, setHaku] = useState("");
   const [valittuMaa, setValittuMaa] = useState(null);
   const handleShow = (country) => {
-    console.log("handleShow clicked", country);
+    debug("handleShow clicked", country);
     setValittuMaa((prev) =>
       prev && prev.name.common === country.name.common ? null : country
     );
@@ -37,6 +37,7 @@ const App = () => {
         />
       </div>
       <CountryList countries={maat} filter={haku} onShow={handleShow} />
+      {debug("valittuMaa: ", valittuMaa)}
       {valittuMaa && <Country country={valittuMaa} />}
     </div>
   );

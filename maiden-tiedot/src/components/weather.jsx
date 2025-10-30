@@ -1,3 +1,4 @@
+import { debug } from "./debug";
 const mockWeatherData = {
   Finland: {
     temperature: 12,
@@ -23,6 +24,7 @@ const mockWeatherData = {
 
 const getWeather = (countryName) => {
   return new Promise((resolve) => {
+    debug("get promise:", countryName);
     setTimeout(() => {
       resolve(
         mockWeatherData[countryName] || {
@@ -35,4 +37,4 @@ const getWeather = (countryName) => {
   });
 };
 
-export default { getWeather };
+export default getWeather;
