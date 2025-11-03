@@ -1,9 +1,18 @@
 import express, { json } from "express";
 const app = express();
 import cors from "cors";
-
+import path from "path";
+import { fileURLToPath } from "url";
 app.use(cors());
 app.use(json());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.join(__dirname, "dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
 
 let notes = [
   { id: 1, content: "HTML is easy", important: true },
