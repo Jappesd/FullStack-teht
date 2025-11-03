@@ -10,7 +10,9 @@ let notes = [
   { id: 2, content: "Browser can execute only JavaScript", important: false },
   { id: 3, content: "GET and POST are important methods", important: true },
 ];
-
+app.get("/", (req, res) => {
+  res.send("<h1>Notes API is running</h1>");
+});
 app.get("/api/notes", (req, res) => {
   res.json(notes);
 });
