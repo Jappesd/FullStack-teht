@@ -35,6 +35,19 @@ app.post("/api/notes", (req, res) => {
   notes = notes.concat(note);
   res.json(note);
 });
+app.put("/api/notes/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const body = req.body;
+
+  const note = notes.find((n) => n.id === id);
+  if (!note) {
+    return res.status(404).json({ error: "Note not found" });
+  }
+  const updatedNote = { ...note, important: body.important };
+  notes = notes.map((n) => (n.id !== id ? n : updatedNote));
+  res.json(updatedNote);
+});
+
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
