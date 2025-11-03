@@ -10,10 +10,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "dist")));
 
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
-});
-
 let notes = [
   { id: 1, content: "HTML is easy", important: true },
   { id: 2, content: "Browser can execute only JavaScript", important: false },
@@ -38,6 +34,9 @@ app.post("/api/notes", (req, res) => {
   };
   notes = notes.concat(note);
   res.json(note);
+});
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
 const PORT = process.env.PORT || 3001;
