@@ -18,7 +18,9 @@
     "@vitejs/plugin-react": "^5.0.4",
     "axios": "^1.12.2",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.0.1",
+    "mongoose": "^8.19.2",
     "nodemon": "^3.1.10",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
