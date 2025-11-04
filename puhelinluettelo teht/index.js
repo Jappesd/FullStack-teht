@@ -4,6 +4,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static("dist"));
 
 let persons = [
   { id: 1, name: "Arto Hellas", number: "040-123456" },
@@ -49,6 +50,10 @@ app.post("/api/persons", (req, res) => {
   };
   persons = persons.concat(person);
   res.json(person);
+});
+
+app.use((req, res) => {
+  res.sendFile(__dirname + "/dist/index.html");
 });
 
 const PORT = process.env.PORT || 3001;
