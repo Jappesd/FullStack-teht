@@ -8,6 +8,7 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "nodemon index.js",
     "client": "vite",
+    "vite": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "npm run build && node index.js",
