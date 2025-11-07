@@ -3,7 +3,7 @@ dotenv.config();
 import express, { json } from "express";
 const app = express();
 import cors from "cors";
-import { dirname } from "path";
+import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
 const { default: Note } = await import("./models/note.js");
