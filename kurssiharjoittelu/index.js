@@ -3,14 +3,15 @@ dotenv.config();
 import express, { json } from "express";
 const app = express();
 import cors from "cors";
-import path from "path";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 
 const { default: Note } = await import("./models/note.js");
 console.log("Backend index.js loaded");
 app.use(cors());
 app.use(json());
-
-const __dirname = path.resolve();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 app.use(express.static(path.join(__dirname, "dist")));
 
 let notes = [
