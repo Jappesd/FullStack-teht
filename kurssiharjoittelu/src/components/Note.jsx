@@ -2,12 +2,12 @@ const Note = ({ note, toggleImportance, deleteNote }) => {
   const label = note.important ? "make not important" : "make important";
 
   return (
-    <li className="note">
-      {note.content}
-      <button style={{ marginLeft: "20px" }} onClick={toggleImportance}>
+    <li className={`note-item ${note.important ? "important" : ""}`}>
+      <span>{note.content}</span>
+      <button className="toggle-btn" onClick={toggleImportance}>
         {label}
       </button>
-      <button style={{ marginLeft: "20px" }} onClick={deleteNote}>
+      <button className="delete-btn" onClick={deleteNote}>
         delete
       </button>
     </li>

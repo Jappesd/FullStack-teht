@@ -23,7 +23,6 @@ app.get("/", (req, res) => {
 });
 app.get("/api/notes", async (req, res) => {
   const notes = await Note.find({});
-  console.log(notes[0]);
   res.json(notes);
 });
 app.post("/api/notes", (req, res) => {

@@ -68,11 +68,12 @@ const App = (props) => {
   console.log("notesToShow: ", notesToShow);
   console.log("notes: ", notes);
   return (
-    <div>
+    <div className="app-container">
       <h1>Notes</h1>
       <MessageNotification message={errorMessage} />
       <div>
         <button
+          className="filter-btn"
           onClick={() => {
             console.log("Toggling showAll to:", !showAll);
             setShowAll(!showAll);
@@ -81,7 +82,7 @@ const App = (props) => {
           show {showAll ? "important" : "all"}
         </button>
       </div>
-      <ul>
+      <ul className="note-list">
         {notes &&
           notesToShow.map(
             (note) =>
@@ -98,7 +99,9 @@ const App = (props) => {
 
       <form onSubmit={addNote}>
         <input value={newNote} onChange={handleNoteChange} />
-        <button type="Submit">Save</button>
+        <button className="add-btn" type="Submit">
+          Save
+        </button>
       </form>
       <Footer />
     </div>
