@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Note from "./components/Note";
+import Note from "./components/Note.jsx";
 import Footer from "./components/Footer";
 import noteService from "./services/notes";
 
@@ -16,15 +16,27 @@ const App = (props) => {
       setNotes(response.data);
     });
   }, []);
-
+  const deleteNote = (id) => {
+    if (window.confirm("Delete this note?")) {
+      noteService
+        .remove(id)
+        .then(() => {
+          setNotes(notes.filter((n) => n.id !== id));
+        })
+        .catch((err) => console.log("Error deleting note: ", err.message));
+    }
+  };
   const toggleImportanceOf = (id) => {
+    console.log("notes:", notes);
+    console.log("toggling id:", id);
     const note = notes.find((n) => n.id === id);
+    if (!note) return;
     const changedNote = { ...note, important: !note.important };
 
     noteService
       .update(id, changedNote)
       .then((response) => {
-        setNotes(notes.map((n) => (n.id !== id ? n : response.data)));
+        setNotes(notes.map((n) => (n.id === response.id ? response : n)));
       })
       .catch((error) => {
         setErrorMessage(
@@ -33,6 +45,7 @@ const App = (props) => {
         setTimeout(() => {
           setErrorMessage(null);
         }, 5000);
+        setNotes(notes.filter((n) => n.id !== id));
       });
   };
   const addNote = (event) => {
@@ -52,7 +65,8 @@ const App = (props) => {
     setNewNote(event.target.value);
   };
   const notesToShow = showAll ? notes : notes.filter((note) => note.important);
-
+  console.log("notesToShow: ", notesToShow);
+  console.log("notes: ", notes);
   return (
     <div>
       <h1>Notes</h1>
@@ -68,13 +82,18 @@ const App = (props) => {
         </button>
       </div>
       <ul>
-        {notesToShow.map((note) => (
-          <Note
-            key={note.id}
-            note={note}
-            toggleImportance={() => toggleImportanceOf(note.id)}
-          />
-        ))}
+        {notes &&
+          notesToShow.map(
+            (note) =>
+              note && (
+                <Note
+                  key={note.id}
+                  note={note}
+                  toggleImportance={() => toggleImportanceOf(note.id)}
+                  deleteNote={() => deleteNote(note.id)}
+                />
+              )
+          )}
       </ul>
 
       <form onSubmit={addNote}>

@@ -1,13 +1,16 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express, { json } from "express";
 const app = express();
 import cors from "cors";
 import path from "path";
-import { fileURLToPath } from "url";
+
+const { default: Note } = await import("./models/note.js");
+console.log("Backend index.js loaded");
 app.use(cors());
 app.use(json());
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, "dist")));
 
 let notes = [
@@ -18,34 +21,53 @@ let notes = [
 app.get("/", (req, res) => {
   res.send("<h1>Notes API is running</h1>");
 });
-app.get("/api/notes", (req, res) => {
+app.get("/api/notes", async (req, res) => {
+  const notes = await Note.find({});
+  console.log(notes[0]);
   res.json(notes);
 });
-
 app.post("/api/notes", (req, res) => {
   const body = req.body;
   if (!body.content) {
     return res.status(400).json({ error: "content missing" });
   }
-  const note = {
-    id: Math.floor(Math.random() * 100000),
+  const note = new Note({
     content: body.content,
     important: body.important || false,
-  };
-  notes = notes.concat(note);
-  res.json(note);
+  });
+  note.save().then((savedNote) => {
+    res.json(savedNote);
+  });
 });
 app.put("/api/notes/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const body = req.body;
+  const { content, important } = req.body;
 
-  const note = notes.find((n) => n.id === id);
-  if (!note) {
-    return res.status(404).json({ error: "Note not found" });
+  Note.findByIdAndUpdate(
+    req.params.id,
+    { content, important },
+    { new: true, runValidators: true, context: "query" }
+  )
+    .then((updatedNote) => {
+      if (updatedNote) {
+        res.json(updatedNote);
+      } else {
+        res.status(404).end;
+      }
+    })
+    .catch((err) => console.log(err.message));
+});
+
+app.delete("/api/notes/:id", async (req, res) => {
+  try {
+    const result = await Note.findByIdAndDelete(req.params.id);
+    if (result) {
+      res.status(204).end(); // means successfully deleted
+    } else {
+      res.status(404).json({ error: "Note not found" });
+    }
+  } catch (err) {
+    res.status(400).json({ error: "Malformatted id" });
   }
-  const updatedNote = { ...note, important: body.important };
-  notes = notes.map((n) => (n.id !== id ? n : updatedNote));
-  res.json(updatedNote);
 });
 
 app.use((req, res) => {
