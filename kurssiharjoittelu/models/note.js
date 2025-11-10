@@ -14,7 +14,10 @@ mongoose
     console.log("error connecting to MongoDB: ", err.message);
   });
 const noteSchema = new mongoose.Schema({
-  content: String,
+  content: {
+    type: String,
+    required: true,
+  },
   important: Boolean,
 });
 noteSchema.set("toJSON", {

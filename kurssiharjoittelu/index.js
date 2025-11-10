@@ -14,6 +14,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 app.use(express.static(path.join(__dirname, "dist")));
 
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return res.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return res.status(400).json({ error: error.message });
+  }
+  next(error);
+};
+
 let notes = [
   { id: 1, content: "HTML is easy", important: true },
   { id: 2, content: "Browser can execute only JavaScript", important: false },
@@ -26,7 +37,7 @@ app.get("/api/notes", async (req, res) => {
   const notes = await Note.find({});
   res.json(notes);
 });
-app.post("/api/notes", (req, res) => {
+app.post("/api/notes", (req, res, next) => {
   const body = req.body;
   if (!body.content) {
     return res.status(400).json({ error: "content missing" });
@@ -35,9 +46,12 @@ app.post("/api/notes", (req, res) => {
     content: body.content,
     important: body.important || false,
   });
-  note.save().then((savedNote) => {
-    res.json(savedNote);
-  });
+  note
+    .save()
+    .then((savedNote) => {
+      res.json(savedNote);
+    })
+    .catch((error) => next(error));
 });
 app.put("/api/notes/:id", (req, res) => {
   const { content, important } = req.body;
@@ -54,7 +68,7 @@ app.put("/api/notes/:id", (req, res) => {
         res.status(404).end;
       }
     })
-    .catch((err) => console.log(err.message));
+    .catch((err) => next(err));
 });
 
 app.delete("/api/notes/:id", async (req, res) => {
@@ -66,9 +80,10 @@ app.delete("/api/notes/:id", async (req, res) => {
       res.status(404).json({ error: "Note not found" });
     }
   } catch (err) {
-    res.status(400).json({ error: "Malformatted id" });
+    next(err);
   }
 });
+app.use(errorHandler);
 
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));

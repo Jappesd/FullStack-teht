@@ -3,8 +3,7 @@ import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import comms from "./services/comms";
-import MsgNotification from "./components/MsgNotification";
-import ErrorMessage from "./components/ErrorMsg";
+import Notification from "./components/Notification";
 const App = () => {
   const [persons, setPersons] = useState([]);
 
@@ -19,7 +18,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
   const [errorMsg, setErrorMsg] = useState(null);
-  const [erroriMsg, setErroriMsg] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
   const addPerson = (event) => {
     event.preventDefault(); // prevent page reload
 
@@ -53,19 +52,18 @@ const App = () => {
           );
 
           // success message
-          setErrorMsg(`Changed number for ${existingPerson.name}`);
-          setTimeout(() => setErrorMsg(null), 3000);
+          setSuccessMsg(`Changed number for ${existingPerson.name}`);
+          setTimeout(() => setSuccessMsg(null), 3000);
 
           // reset inputs
           setNewName("");
           setNewNumber("");
         })
         .catch((error) => {
-          console.error(error);
-          setErroriMsg(
-            `Information of '${existingPerson.name}' has already been removed from server`
-          );
-          setTimeout(() => setErroriMsg(null), 4000);
+          const msg = error.response?.data?.error ?? error.message;
+          console.error(msg);
+          setErrorMsg(msg);
+          setTimeout(() => setErrorMsg(null), 4000);
         });
     } else {
       // create new person object
@@ -81,17 +79,18 @@ const App = () => {
           setPersons(persons.concat(newPerson));
 
           // success message
-          setErrorMsg(`Added ${response.name} to phonebook`);
-          setTimeout(() => setErrorMsg(null), 5000);
+          setSuccessMsg(`Added ${response.name} to phonebook`);
+          setTimeout(() => setSuccessMsg(null), 5000);
 
           // reset inputs
           setNewName("");
           setNewNumber("");
         })
         .catch((error) => {
-          console.error(error);
-          setErroriMsg("Failed to add person to server");
-          setTimeout(() => setErroriMsg(null), 4000);
+          const msg = error.response?.data?.error ?? error.message;
+          console.error(msg);
+          setErrorMsg(msg);
+          setTimeout(() => setErrorMsg(null), 4000);
         });
     }
   };
@@ -108,9 +107,9 @@ const App = () => {
         .remove(id)
         .then(() => {
           setPersons(persons.filter((p) => p.id !== id));
-          setErroriMsg(`Deleted ${toDelete} from phonebook`);
+          setSuccessMsg(`Deleted ${toDelete} from phonebook`);
           setTimeout(() => {
-            setErroriMsg(null);
+            setSuccessMsg(null);
           }, 4000);
         })
         .catch((error) => {
@@ -123,8 +122,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <MsgNotification message={errorMsg} />
-      <ErrorMessage messaged={erroriMsg} />
+      <Notification message={errorMsg} type="error" />
+      <Notification message={successMsg} type="success" />
       <Filter
         filter={filter}
         handleFilterChange={(e) => setFilter(e.target.value)}
