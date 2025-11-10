@@ -12,7 +12,6 @@ app.use(cors());
 app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, "dist")));
 
 const errorHandler = (error, req, res, next) => {
   console.error(error.message);
@@ -109,7 +108,7 @@ app.put("/api/persons/:id", async (req, res, next) => {
 });
 
 app.use(errorHandler);
-
+app.use(express.static(path.join(__dirname, "dist")));
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
