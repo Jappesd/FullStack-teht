@@ -1,9 +1,13 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
+
 const url = process.env.MONGODB_URI;
 console.log("Connecting to MongoDB");
-
+if (!url) {
+  console.error("MONGO_URI not defined!");
+  process.exit(1);
+}
 mongoose
   .connect(url)
   .then(() => {
