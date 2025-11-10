@@ -16,6 +16,8 @@ const errorHandler = (error, req, res, next) => {
   }
   next(error);
 };
+
+//GET all persons from database
 app.get("/api/persons", (req, res) => {
   Person.find({}).then((persons) => {
     res.json(persons);
@@ -24,10 +26,14 @@ app.get("/api/persons", (req, res) => {
 
 app.get("/info", (req, res) => {
   const date = new Date();
-  res.send(
-    `<p>Phonebook has info for ${persons.length} people</p><p>${date}</p>`
-  );
+  Person.countDocuments({})
+    .then((count) => {
+      res.send(`<p>Phonebook has info for ${count} people</p><p>${date}</p>`);
+    })
+    .catch((error) => next(error));
 });
+
+//search by id
 app.get("/api/persons/:id", (req, res, next) => {
   Person.findById(req.params.id)
     .then((person) => {
@@ -39,24 +45,59 @@ app.get("/api/persons/:id", (req, res, next) => {
     })
     .catch((err) => next(err));
 });
-app.delete("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  persons = persons.filter((p) => p.id !== id);
-  res.status(204).end();
-});
 
-app.post("/api/persons", (req, res) => {
-  const body = req.body;
-  if (!body.name || !body.number) {
-    return res.status(400).json({ error: "name or number missing" });
+//deleting a person
+
+app.delete("/api/persons/:id", async (req, res, next) => {
+  try {
+    const id = req.params.id;
+
+    const deletedPerson = await Person.findByIdAndDelete(id);
+
+    if (!deletedPerson) {
+      return res.status(404).json({ error: "person not found" });
+    }
+    res.status(204).end();
+  } catch (error) {
+    next(error);
   }
-  const person = {
-    id: Math.floor(Math.random() * 100000),
-    name: body.name,
-    number: body.number,
-  };
-  persons = persons.concat(person);
-  res.json(person);
+});
+// adding a new person
+app.post("/api/persons", async (req, res, next) => {
+  try {
+    const body = req.body;
+
+    if (!body.name || !body.number) {
+      return res.status(400).json({ error: "name or number missing" });
+    }
+    const person = new Person({
+      name: body.name,
+      number: body.number,
+    });
+
+    const savedPerson = await person.save();
+    res.json(savedPerson);
+  } catch (error) {
+    next(error);
+  }
+});
+//update a number
+app.put("/api/persons/:id", async (req, res, next) => {
+  try {
+    const { number } = req.body;
+    const updatedPerson = await Person.findByIdAndUpdate(
+      req.params.id,
+      { number },
+      { new: true, runValidators: true, context: "query" }
+    );
+    if (!updatedPerson) {
+      return res.status(404).json({ error: "person not found" });
+    }
+
+    res.json(updatedPerson);
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.use(errorHandler);

@@ -21,59 +21,78 @@ const App = () => {
   const [errorMsg, setErrorMsg] = useState(null);
   const [erroriMsg, setErroriMsg] = useState(null);
   const addPerson = (event) => {
-    event.preventDefault(); //prevents reload on form submit
-    //check if name already in persons
-    console.log("exisisting persons when adding:", persons);
-    if (!newName.trim()) return;
+    event.preventDefault(); // prevent page reload
 
-    const existingPerson = persons.find((p) => p.name === newName);
+    if (!newName.trim()) return; // ignore empty names
+
+    // check if name exists (case-insensitive)
+    const existingPerson = persons.find(
+      (p) => p.name.toLowerCase() === newName.toLowerCase()
+    );
+
     if (existingPerson) {
-      if (
-        window.confirm(
-          `${newName} is already added to phonebook, replace number?`
-        )
-      ) {
-        const changedPerson = { ...existingPerson, number: newNumber };
+      // ask for confirmation to update
+      const confirmUpdate = window.confirm(
+        `${newName} is already added to phonebook, replace number?`
+      );
+      if (!confirmUpdate) return;
 
-        comms
-          .update(existingPerson.id, changedPerson)
-          .then((returnedPerson) => {
-            setPersons(
-              persons.map((p) =>
-                p.id !== existingPerson.id ? p : returnedPerson
-              )
-            );
-            setErrorMsg(`Changed number for ${existingPerson.name}`);
-            setTimeout(() => {
-              setErrorMsg(null);
-            }, 3000);
-            setNewName("");
-            setNewNumber("");
-          })
-          .catch((error) => {
-            console.log(error);
-            setErroriMsg(
-              `Information of '${existingPerson.name}' has already been removed from server`
-            );
-            setTimeout(() => {
-              setErroriMsg(null);
-            }, 4000);
-          });
-      }
+      // create updated object with new number
+      const changedPerson = { number: newNumber, name: existingPerson.name };
+
+      // send PUT request using _id for backend
+      comms
+        .update(existingPerson.id, changedPerson)
+        .then((returnedPerson) => {
+          // normalize returned person: add id for frontend
+          const updatedPerson = { ...returnedPerson, id: returnedPerson.id };
+
+          // update state
+          setPersons(
+            persons.map((p) => (p.id !== existingPerson.id ? p : updatedPerson))
+          );
+
+          // success message
+          setErrorMsg(`Changed number for ${existingPerson.name}`);
+          setTimeout(() => setErrorMsg(null), 3000);
+
+          // reset inputs
+          setNewName("");
+          setNewNumber("");
+        })
+        .catch((error) => {
+          console.error(error);
+          setErroriMsg(
+            `Information of '${existingPerson.name}' has already been removed from server`
+          );
+          setTimeout(() => setErroriMsg(null), 4000);
+        });
     } else {
-      if (persons.some((p) => p.name.toLowerCase() === newName.toLowerCase()))
-        return;
+      // create new person object
       const personObject = { name: newName, number: newNumber };
-      comms.create(personObject).then((response) => {
-        console.log("returned person:", response);
-        setPersons(persons.concat(response));
-        setErrorMsg(`Added ${response.name} to phonebook`);
-        setTimeout(() => {
-          setErrorMsg(null);
-        }, 5000);
-        setNewName("");
-        setNewNumber("");
-      });
+
+      comms
+        .create(personObject)
+        .then((response) => {
+          // normalize returned person: add id for frontend
+          const newPerson = { ...response, id: response.id };
+
+          // update state
+          setPersons(persons.concat(newPerson));
+
+          // success message
+          setErrorMsg(`Added ${response.name} to phonebook`);
+          setTimeout(() => setErrorMsg(null), 5000);
+
+          // reset inputs
+          setNewName("");
+          setNewNumber("");
+        })
+        .catch((error) => {
+          console.error(error);
+          setErroriMsg("Failed to add person to server");
+          setTimeout(() => setErroriMsg(null), 4000);
+        });
     }
   };
   const personsToShow = persons.filter((p) =>
@@ -100,7 +119,7 @@ const App = () => {
         });
     }
   };
-
+  // console.log(personsToShow);
   return (
     <div>
       <h2>Phonebook</h2>
