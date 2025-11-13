@@ -1,0 +1,19 @@
+project-root/
+├─ .env
+│
+├─ backend/
+│  ├─ index.js
+│  │      ↑ loads dotenv from '../.env'
+│  │      │
+│  │      ├──> imports Blog model from './connections/Schema.js'
+│  │      └──> imports logger from '../utils/logger.js'
+│  │
+│  └─ connections/
+│         Schema.js
+│             ↑ loads dotenv from '../../.env'
+│             │
+│             └──> imports logger from '../../utils/logger.js'
+│
+├─ utils/
+│   logger.js
+└─ frontend/

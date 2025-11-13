@@ -5,7 +5,7 @@ const app = express();
 import cors from "cors";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-
+import logger from "./utils/logger.js";
 const { default: Note } = await import("./models/note.js");
 console.log("Backend index.js loaded");
 app.use(cors());
@@ -15,7 +15,7 @@ const __dirname = dirname(__filename);
 app.use(express.static(path.join(__dirname, "dist")));
 
 const errorHandler = (error, req, res, next) => {
-  console.error(error.message);
+  logger.error(error.message);
 
   if (error.name === "CastError") {
     return res.status(400).send({ error: "malformatted id" });
@@ -91,5 +91,5 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log("Server running on port ", PORT);
+  logger.info("Server running on port ", PORT);
 });

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Note from "./components/Note.jsx";
 import Footer from "./components/Footer";
 import noteService from "./services/notes";
-
+import logger from "../utils/logger.js";
 import MessageNotification from "./components/MessageNotification";
 
 const App = (props) => {
@@ -27,8 +27,8 @@ const App = (props) => {
     }
   };
   const toggleImportanceOf = (id) => {
-    console.log("notes:", notes);
-    console.log("toggling id:", id);
+    //logger.info("notes:", notes);
+    logger.info("toggling id:", id);
     const note = notes.find((n) => n.id === id);
     if (!note) return;
     const changedNote = { ...note, important: !note.important };
@@ -61,12 +61,12 @@ const App = (props) => {
   };
 
   const handleNoteChange = (event) => {
-    console.log(event.target.value);
+    logger.info("note value", event.target.value);
     setNewNote(event.target.value);
   };
   const notesToShow = showAll ? notes : notes.filter((note) => note.important);
-  console.log("notesToShow: ", notesToShow);
-  console.log("notes: ", notes);
+  //logger.info("notesToShow: ", notesToShow);
+  //logger.info("notes: ", notes);
   return (
     <div className="app-container">
       <h1>Notes</h1>
@@ -75,7 +75,7 @@ const App = (props) => {
         <button
           className="filter-btn"
           onClick={() => {
-            console.log("Toggling showAll to:", !showAll);
+            logger.info("Toggling showAll to:", !showAll);
             setShowAll(!showAll);
           }}
         >
