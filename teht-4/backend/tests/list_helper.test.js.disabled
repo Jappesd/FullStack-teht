@@ -6,7 +6,7 @@ import {
   favoriteBlog,
   mostBlogs,
   mostLikes,
-} from "../utils/list_helper.js";
+} from "../../utils/list_helper.js";
 describe("dummy", () => {
   test("dummy returns one", () => {
     const blogs = [];

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import Blog from "../connections/Schema.js";
+import { Blog } from "../connections/Schema.js";
 
 const blogsRouter = Router();
 
