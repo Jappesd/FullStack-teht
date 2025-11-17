@@ -29,5 +29,35 @@ blogsRouter.post("/", async (req, res, next) => {
     next(err);
   }
 });
+//updates existing blog by id
+blogsRouter.put("/:id", async (req, res, next) => {
+  try {
+    const updated = await Blog.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+      context: "query",
+    });
+
+    if (!updated) {
+      return res.status(404).end();
+    }
+    res.json(updated);
+  } catch (error) {
+    next(error);
+  }
+});
+// delete a blog by id
+blogsRouter.delete("/:id", async (req, res, next) => {
+  try {
+    const deleted = await Blog.findByIdAndDelete(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).end();
+    }
+    res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default blogsRouter;
