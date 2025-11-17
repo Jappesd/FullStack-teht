@@ -1,0 +1,123 @@
+/* Global */
+body {
+  background: #f7f7f7;
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* App Container */
+.app-container {
+  max-width: 600px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Title */
+h1 {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+/* Input Form */
+.note-input {
+  width: 70%;
+  padding: 8px 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-right: 10px;
+  outline: none;
+}
+
+.note-input:focus {
+  border-color: #6c63ff;
+}
+
+.add-btn {
+  padding: 8px 16px;
+  font-size: 15px;
+  border: none;
+  border-radius: 8px;
+  background: #6c63ff;
+  color: white;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  background: #584ff2;
+}
+
+/* Notes List */
+.note-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 25px;
+}
+
+.note-item {
+  background: #fafafa;
+  border: 1px solid #e3e3e3;
+  padding: 14px 16px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  transition: 0.2s;
+}
+
+.note-item:hover {
+  background: #f0f0ff;
+}
+
+/* Important notes */
+.note-item.important {
+  border-left: 6px solid #ffb400;
+  background: #fff8e6;
+}
+
+/* Buttons */
+.actions button {
+  margin-left: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+}
+
+.toggle-btn {
+  background: #4caf50;
+  color: white;
+}
+
+.toggle-btn:hover {
+  background: #449d48;
+}
+
+.delete-btn {
+  background: #ff4e4e;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #d93b3b;
+}
+
+.filter-btn {
+  margin-bottom: 15px;
+  padding: 6px 14px;
+  background: #6c63ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.filter-btn:hover {
+  background: #584ff2;
+}
