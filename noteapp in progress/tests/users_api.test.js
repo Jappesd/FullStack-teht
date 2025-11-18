@@ -2,42 +2,95 @@ import { test, describe, before, after, beforeEach } from "node:test";
 import assert from "node:assert";
 import request from "supertest";
 import app from "../app.js";
-import { userConnection } from "../utils/connections.js";
-import { User } from "../models/users.js";
+import { getConnection, closeConnections } from "../utils/connections.js";
+import { getUserModel } from "../models/users.js";
+import bcrypt from "bcrypt";
+import mongoose from "mongoose";
 
 const api = request(app);
 
-//clean users from db before each test
-beforeEach(async () => {
-  await User.deleteMany({});
-});
-//close connection after test
-after(async () => {
-  await userConnection.close();
+let server;
+
+before(async () => {
+  //start server on ephemeral port (so it can be closed later)
+  server = app.listen(0);
+  // Connect to test DBs
+  await getConnection(process.env.TEST_MONGODB);
 });
 
-//post test
+// Clean users from DB before each test
+beforeEach(async () => {
+  const User = await getUserModel();
+  await User.deleteMany({});
+
+  const users = [
+    {
+      username: "sammy",
+      name: "Sam",
+      passwordHash: await bcrypt.hash("secret123", 10),
+    },
+    {
+      username: "alice",
+      name: "Alice",
+      passwordHash: await bcrypt.hash("mypassword", 10),
+    },
+  ];
+  await User.insertMany(users);
+});
+
+// Close connections after all tests
+after(async () => {
+  await closeConnections();
+  await mongoose.disconnect();
+  await server.close(); //close the http server
+  await new Promise((resolve) => setImmediate(resolve)); //let Node flush any remaining handles
+  //console.log("Open handles:", process._getActiveHandles());
+});
+
+// Test GET /api/users
+describe("GET /api/users", () => {
+  test("returns all users", async () => {
+    const res = await api
+      .get("/api/users")
+      .expect(200)
+      .expect("Content-Type", /application\/json/);
+
+    assert.strictEqual(res.body.length, 2);
+
+    const usernames = res.body.map((u) => u.username);
+    assert.ok(usernames.includes("sammy"));
+    assert.ok(usernames.includes("alice"));
+
+    // Make sure passwordHash is not returned in response
+    res.body.forEach((user) => {
+      assert.strictEqual(user.passwordHash, undefined);
+    });
+  });
+});
+
+// Test POST /api/users
 describe("POST /api/users", () => {
   test("creates a new user with valid data", async () => {
     const newUser = {
-      username: "sammy",
-      name: "Sam",
-      password: "secret123",
+      username: "bob",
+      name: "Bob",
+      password: "mypassword",
     };
+
     const res = await api
       .post("/api/users")
       .send(newUser)
-      .expect(201) //expect HTTP 201 "created"
+      .expect(201)
       .expect("Content-Type", /application\/json/);
 
     assert.strictEqual(res.body.username, newUser.username);
     assert.ok(res.body.id, "Response should have an id");
     assert.strictEqual(res.body.name, newUser.name);
-
-    //ensure passwordHash is not returned
     assert.strictEqual(res.body.passwordHash, undefined);
-    //verify directly from DB
-    const userInDB = await User.findOne({ username: "sammy" });
+
+    // Verify directly from DB
+    const User = await getUserModel();
+    const userInDB = await User.findOne({ username: newUser.username });
     assert.ok(userInDB, "user should be saved to db");
   });
 

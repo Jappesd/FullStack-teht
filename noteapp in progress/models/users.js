@@ -1,25 +1,26 @@
 import mongoose from "mongoose";
-import { userConnection } from "../utils/connections.js";
+import { getConnection } from "../utils/connections.js";
+import config from "../utils/config.js";
 const userSchema = new mongoose.Schema({
-  username: String,
+  username: { type: String, required: true, unique: true },
   name: String,
-  passwordHash: String,
-  notes: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Note",
-    },
-  ],
+  passwordHash: { type: String, required: true },
+  notes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Note" }],
 });
-
 userSchema.set("toJSON", {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
-    // passwordHash should not be revealed
-    delete returnedObject.passwordHash;
+  transform: (doc, ret) => {
+    ret.id = ret._id.toString();
+    delete ret._id;
+    delete ret.__v;
+    delete ret.passwordHash;
   },
 });
+// Cache the model after first connection
+let UserModel;
 
-export const User = userConnection.model("User", userSchema);
+export const getUserModel = async () => {
+  if (UserModel) return UserModel;
+  const conn = await getConnection(config.MONGO_user);
+  UserModel = conn.model("User", userSchema);
+  return UserModel;
+};

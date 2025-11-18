@@ -1,1 +1,8 @@
-DELETE http://localhost:3001/api/notes/690c789d11d3922014753e8c
+POST http://localhost:3001/api/notes
+Content-Type: application/json
+
+{
+    "content": "This is a test",
+    "important":true,
+    "userId": "691c3f2be976d1bed7f5fde1"
+}
