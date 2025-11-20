@@ -1,3 +1,28 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "My Test Blog",
+  "author": "Sammy",
+  "url": "http://example.com/test-blog",
+  "likes": 5,
+  "userId": "691ef7675303aca76b009f8f"
+}
+
+
+
 ### Get all blogs
-GET http://localhost:3003/api/blogs
-Accept: application/json
+# GET http://localhost:3003/api/blogs
+# Accept: application/json
+
+# POST http://localhost:3003/api/users
+# Content-Type: application/json
+
+# {
+#     "username":"sammy",
+#     "name":"Sam",
+#     "password":"secret123"
+# }
+# GET http://localhost:3003/api/users
+
+### Create a new blog

@@ -4,7 +4,7 @@ import config from "../utils/config.js";
 import mongoose from "mongoose";
 // Start server
 mongoose
-  .connect(config.MONGOURL)
+  .connect(process.env.MONGO_URL)
   .then(() => {
     logger.info("Connected to MongoDB");
     app.listen(config.PORT, () => {
