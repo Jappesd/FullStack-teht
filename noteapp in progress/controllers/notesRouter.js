@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { getNoteModel } from "../models/note.js";
 import { getUserModel } from "../models/users.js";
+import { userExtractor } from "../utils/middleware.js";
+
 const noteRouter = Router();
 
 // get all notes
@@ -30,24 +32,29 @@ noteRouter.get("/:id", async (req, res, next) => {
   }
 });
 //post new note
-noteRouter.post("/", async (req, res, next) => {
+noteRouter.post("/", userExtractor, async (req, res, next) => {
   try {
-    const body = req.body;
-    const User = await getUserModel();
     const Note = await getNoteModel();
-    const user = await User.findById(body.userId);
-    if (!user) {
-      return res.status(400).json({ error: "userId missing or not valid" });
+    const user = req.user; // comes from userExtractor
+
+    // Ensure the notes array exists
+    if (!user.notes) {
+      user.notes = [];
     }
+
     const note = new Note({
-      content: body.content,
-      important: body.important || false,
-      user: user._id,
+      content: req.body.content,
+      important: req.body.important || false,
+      user: user._id, // link note to user
     });
-    const saved = await note.save();
-    user.notes = user.notes.concat(saved._id);
+
+    const savedNote = await note.save();
+
+    // Add note reference to user's notes array
+    user.notes.push(savedNote._id);
     await user.save();
-    res.status(201).json(saved);
+
+    res.status(201).json(savedNote);
   } catch (err) {
     next(err);
   }

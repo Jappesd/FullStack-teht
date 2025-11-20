@@ -1,7 +1,9 @@
 import logger from "./logger.js";
+import jwt from "jsonwebtoken";
+import { getUserModel } from "../models/users.js";
 
 // logs every request
-const requestLogger = (req, res, next) => {
+export const requestLogger = (req, res, next) => {
   logger.info(`${req.method} ${req.path}`);
   if (req.method === "POST" || req.method === "PUT") {
     logger.info("Body:", req.body);
@@ -9,13 +11,45 @@ const requestLogger = (req, res, next) => {
   next();
 };
 
-//handles requests to unknown endpoints
-const unknownEndpoint = (req, res) => {
+// Token extractor middleware
+export const tokenExtractor = (req, res, next) => {
+  const auth = req.get("authorization");
+  if (auth && auth.toLowerCase().startsWith("bearer ")) {
+    req.token = auth.substring(7);
+  } else {
+    req.token = null;
+  }
+  next();
+};
+
+// User extractor middleware
+export const userExtractor = async (req, res, next) => {
+  const token = req.token;
+  if (!token) return res.status(401).json({ error: "token missing" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET);
+
+    if (!decoded.id) return res.status(401).json({ error: "token invalid" });
+
+    const User = await getUserModel();
+    req.user = await User.findById(decoded.id);
+
+    if (!req.user) return res.status(401).json({ error: "user not found" });
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Handles requests to unknown endpoints
+export const unknownEndpoint = (req, res) => {
   res.status(404).send({ error: "unknown endpoint" });
 };
 
-//handles errors
-const errorHandler = (error, req, res, next) => {
+// Handles errors
+export const errorHandler = (error, req, res, next) => {
   logger.error(error.message);
 
   if (error.name === "CastError" && error.kind === "ObjectId") {
@@ -30,11 +64,13 @@ const errorHandler = (error, req, res, next) => {
   ) {
     return res.status(400).json({ error: "expected `username` to be unique" });
   }
+  if (error.name === "JsonWebTokenError") {
+    return res.status(401).json({ error: "Token invalid" });
+  }
+  if (error.name === "TokenExpiredError") {
+    return res.status(401).json({
+      error: "token expired",
+    });
+  }
   next(error);
-};
-
-export default {
-  requestLogger,
-  unknownEndpoint,
-  errorHandler,
 };

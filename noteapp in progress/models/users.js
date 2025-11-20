@@ -18,9 +18,9 @@ userSchema.set("toJSON", {
 // Cache the model after first connection
 let UserModel;
 
-export const getUserModel = async () => {
+export const getUserModel = async (url = process.env.MONGO_USER) => {
   if (UserModel) return UserModel;
-  const conn = await getConnection(config.MONGO_user);
+  const conn = await getConnection(url);
   UserModel = conn.model("User", userSchema);
   return UserModel;
 };
