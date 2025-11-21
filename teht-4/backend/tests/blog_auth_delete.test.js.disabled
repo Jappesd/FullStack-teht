@@ -1,0 +1,85 @@
+import { MONGO_URL } from "./test_config.js";
+import test, { before, after } from "node:test";
+import assert from "node:assert";
+import mongoose from "mongoose";
+import supertest from "supertest";
+import app from "../app.js";
+import { User, Blog } from "../connections/Schema.js";
+
+const api = supertest(app);
+
+let tokenUser1 = null;
+let tokenUser2 = null;
+let blogId = null;
+before(async () => {
+  await mongoose.connect(MONGO_URL);
+
+  //clear db
+  await User.deleteMany({});
+  await Blog.deleteMany({});
+
+  //create user1
+  await api.post("/api/users").send({
+    username: "user1",
+    name: "User One",
+    password: "password1",
+  });
+
+  // Create user2
+  await api.post("/api/users").send({
+    username: "user2",
+    name: "User Two",
+    password: "password2",
+  });
+  // Login to get tokens
+  const login1 = await api
+    .post("/api/login")
+    .send({ username: "user1", password: "password1" });
+  tokenUser1 = login1.body.token;
+
+  const login2 = await api
+    .post("/api/login")
+    .send({ username: "user2", password: "password2" });
+  tokenUser2 = login2.body.token;
+
+  // Create a blog as user1
+  const blogRes = await api
+    .post("/api/blogs")
+    .set("Authorization", `Bearer ${tokenUser1}`)
+    .send({
+      title: "User1 Blog",
+      author: "User One",
+      url: "http://example.com",
+      likes: 0,
+    })
+    .expect(201);
+
+  blogId = blogRes.body.id;
+  assert.ok(blogId, "Blog should have an ID");
+});
+after(async () => {
+  await mongoose.connection.close();
+});
+
+// Test: user2 cannot delete user1's blog
+test("user2 cannot delete user1's blog", async () => {
+  await api
+    .delete(`/api/blogs/${blogId}`)
+    .set("Authorization", `Bearer ${tokenUser2}`)
+    .expect(403)
+    .expect((res) => {
+      assert.match(res.body.error, /only the creator/i);
+    });
+});
+
+// Test: user1 can delete their own blog
+test("user1 can delete their own blog", async () => {
+  await api
+    .delete(`/api/blogs/${blogId}`)
+    .set("Authorization", `Bearer ${tokenUser1}`)
+    .expect(204);
+
+  // Verify blog is gone
+  const blogInDb = await Blog.findById(blogId);
+  assert.equal(blogInDb, null);
+});

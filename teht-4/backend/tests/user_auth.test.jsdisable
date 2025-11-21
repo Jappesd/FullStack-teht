@@ -1,0 +1,78 @@
+import { MONGO_URL } from "./test_config.js";
+import { test, before, beforeEach, after } from "node:test";
+import mongoose from "mongoose";
+import supertest from "supertest";
+import app from "../app.js";
+import { Blog, User } from "../connections/Schema.js";
+
+const api = supertest(app);
+
+let token = null; // will hold JWT
+
+before(async () => {
+  await mongoose.connect(MONGO_URL);
+});
+
+beforeEach(async () => {
+  // Clear DB
+  await User.deleteMany({});
+  await Blog.deleteMany({});
+
+  // Create a user
+  const userData = {
+    username: "testuser",
+    name: "Test User",
+    password: "supersecret",
+  };
+  await api.post("/api/users").send(userData);
+
+  // Log in to get token
+  const loginRes = await api
+    .post("/api/login")
+    .send({ username: "testuser", password: "supersecret" });
+  token = loginRes.body.token;
+});
+
+after(async () => {
+  await mongoose.connection.close();
+});
+
+test("creating a blog with valid token succeeds", async () => {
+  const newBlog = {
+    title: "My Test Blog",
+    author: "Tester",
+    url: "http://example.com",
+    likes: 5,
+  };
+
+  const res = await api
+    .post("/api/blogs")
+    .set("Authorization", `Bearer ${token}`)
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  // Check returned blog
+  const savedBlog = res.body;
+  console.log("Saved Blog:", savedBlog);
+
+  // Check user reference
+  const user = await User.findOne({ username: "testuser" }).populate("blogs");
+  const blogTitles = user.blogs.map((b) => b.title);
+  if (!blogTitles.includes("My Test Blog"))
+    throw new Error("Blog not linked to user");
+});
+
+test("creating a blog without token fails", async () => {
+  const newBlog = { title: "No Token Blog", url: "http://example.com" };
+
+  await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(401)
+    .expect((res) => {
+      if (!res.body.error.match(/token missing|invalid/i)) {
+        throw new Error("Expected 401 with token error");
+      }
+    });
+});

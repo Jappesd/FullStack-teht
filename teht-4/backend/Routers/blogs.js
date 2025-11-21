@@ -25,28 +25,32 @@ blogsRouter.get("/:id", async (req, res, next) => {
 //post new blog
 blogsRouter.post("/", async (req, res, next) => {
   try {
-    const { title, author, url, likes, userId } = req.body;
+    const { title, author, url, likes } = req.body;
 
     if (!title || !url) {
       return res.status(400).json({ error: "title and url are required" });
     }
-    const user = await User.findById(userId);
+    const user = req.user;
     if (!user) {
-      return res.status(400).json({
-        error: "invalid user ID",
+      return res.status(401).json({
+        error: "token missing or invalid",
       });
+    }
+    const dbUser = await User.findById(user.id);
+    if (!dbUser) {
+      return res.status(400).json({ error: "invalid user ID" });
     }
     const blog = new Blog({
       title,
       author,
       url,
       likes: likes || 0,
-      user: user._id,
+      user: dbUser._id,
     });
     const savedBlog = await blog.save();
 
-    user.blogs = user.blogs.concat(savedBlog._id);
-    await user.save();
+    dbUser.blogs = dbUser.blogs.concat(savedBlog._id);
+    await dbUser.save();
 
     const populatedBlog = await savedBlog.populate("user", { username: 1 });
     res.status(201).json(populatedBlog);
@@ -74,11 +78,28 @@ blogsRouter.put("/:id", async (req, res, next) => {
 // delete a blog by id
 blogsRouter.delete("/:id", async (req, res, next) => {
   try {
-    const deleted = await Blog.findByIdAndDelete(req.params.id);
-
-    if (!deleted) {
-      return res.status(404).end();
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({ error: "token missing or invalid" });
     }
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) {
+      return res.status(404).json({ error: "blog not found" });
+    }
+    // check if the requesting user is the creator
+    if (blog.user.toString() !== user.id) {
+      return res
+        .status(403)
+        .json({ error: "only the creator can delte the blog" });
+    }
+
+    await Blog.findByIdAndDelete(req.params.id);
+
+    //remove blog reference from user
+    const dbUser = await User.findById(user.id);
+    dbUser.blogs = dbUser.blogs.filter((b) => b.toString() !== req.params.id);
+    await dbUser.save();
+
     res.status(204).end();
   } catch (error) {
     next(error);

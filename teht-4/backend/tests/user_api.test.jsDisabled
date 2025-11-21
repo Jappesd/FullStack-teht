@@ -1,0 +1,110 @@
+import { test, describe, beforeEach, after, before } from "node:test";
+import assert from "node:assert";
+import mongoose from "mongoose";
+import supertest from "supertest";
+import app from "../app.js";
+import { User } from "../connections/Schema.js"; // adjust if needed
+import { MONGO_URL } from "./test_config.js";
+const api = supertest(app);
+before(async () => {
+  console.log("Connecting to:", MONGO_URL);
+  await mongoose.connect(MONGO_URL);
+  console.log("Connected to db!", MONGO_URL);
+});
+beforeEach(async () => {
+  await User.deleteMany({});
+});
+
+test("fails with 400 if username is too short", async () => {
+  const newUser = {
+    username: "ab",
+    name: "Test User",
+    password: "validpass",
+  };
+
+  const result = await api.post("/api/users").send(newUser).expect(400);
+
+  assert.match(result.body.error, /username/i);
+});
+test("response body does not include passwordHash", async () => {
+  const user = {
+    username: "sammy2",
+    name: "Sammy Two",
+    password: "supersecure",
+  };
+
+  const result = await api.post("/api/users").send(user).expect(201);
+
+  assert.ok(!("passwordHash" in result.body));
+});
+test("fails if username is missing", async () => {
+  const user = { name: "NoUser", password: "test123" };
+
+  await api.post("/api/users").send(user).expect(400);
+});
+test("fails if password is missing", async () => {
+  const user = { username: "noPass", name: "No Pass" };
+
+  await api.post("/api/users").send(user).expect(400);
+});
+
+test("password is hashed, not stored in plain text", async () => {
+  const user = {
+    username: "hashcheck",
+    name: "Hash Checker",
+    password: "mypassword",
+  };
+
+  await api.post("/api/users").send(user).expect(201);
+
+  const created = await User.findOne({ username: "hashcheck" });
+
+  assert.ok(created.passwordHash);
+  assert.notEqual(created.passwordHash, "mypassword");
+});
+
+test("creating a valid user succeeds", async () => {
+  const user = {
+    username: "validUser",
+    name: "Good User",
+    password: "strongpass",
+  };
+
+  const result = await api.post("/api/users").send(user).expect(201);
+
+  assert.equal(result.body.username, user.username);
+
+  const allUsers = await User.find({});
+  assert.equal(allUsers.length, 1);
+});
+
+test("fails with 400 if password is too short", async () => {
+  const newUser = {
+    username: "validuser",
+    name: "Test User",
+    password: "pw",
+  };
+
+  const result = await api.post("/api/users").send(newUser).expect(400);
+
+  assert.match(result.body.error, /password/i);
+});
+test("creation fails if username already exists", async () => {
+  const user = {
+    username: "sammy",
+    name: "Test User",
+    password: "superpass",
+  };
+
+  // Create first user
+  await api.post("/api/users").send(user).expect(201);
+
+  // Try again with the same username
+  const result = await api.post("/api/users").send(user).expect(400);
+
+  assert.match(result.body.error, /username.*unique|taken/i);
+});
+
+after(async () => {
+  await mongoose.connection.close();
+});
