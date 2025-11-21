@@ -5,7 +5,7 @@ import { getConnection } from "./utils/connections.js";
 
 const startServer = async () => {
   try {
-    await getConnection(config.MONGO_user);
+    await getConnection(config.MONGODB);
 
     logger.info("Connected to MongoDB");
 

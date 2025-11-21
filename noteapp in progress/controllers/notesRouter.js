@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { getNoteModel } from "../models/note.js";
 import { getUserModel } from "../models/users.js";
-import { userExtractor } from "../utils/middleware.js";
 
 const noteRouter = Router();
 
@@ -32,7 +31,7 @@ noteRouter.get("/:id", async (req, res, next) => {
   }
 });
 //post new note
-noteRouter.post("/", userExtractor, async (req, res, next) => {
+noteRouter.post("/", async (req, res, next) => {
   try {
     const Note = await getNoteModel();
     const user = req.user; // comes from userExtractor

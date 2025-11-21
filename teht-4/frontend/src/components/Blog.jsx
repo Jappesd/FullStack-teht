@@ -1,0 +1,1 @@
+//displays single blog
