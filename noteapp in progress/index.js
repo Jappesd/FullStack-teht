@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import path from "path";
 import express from "express";
 const __dirname = path.resolve();
-logger.info("trying to connect to:", process.env.MONGODB_URI);
+
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
