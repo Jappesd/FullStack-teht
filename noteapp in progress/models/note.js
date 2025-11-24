@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
-import { getConnection } from "../utils/connections.js";
-import config from "../utils/config.js";
-const noteSchema = new mongoose.Schema({
-  content: { type: String, required: true },
-  date: { type: Date, default: Date.now },
-  important: { type: Boolean, default: false },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-});
+const noteSchema = new mongoose.Schema(
+  {
+    content: { type: String, required: true },
+    date: { type: Date, default: Date.now },
+    important: { type: Boolean, default: false },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  },
+  { timestamps: true }
+);
 
 noteSchema.set("toJSON", {
   transform: (doc, ret) => {
@@ -25,12 +26,5 @@ noteSchema.set("toJSON", {
     });
   },
 });
-// Cache the model after first connection
-let NoteModel;
 
-export const getNoteModel = async () => {
-  if (NoteModel) return NoteModel;
-  const conn = await getConnection(config.MONGO_user);
-  NoteModel = conn.model("Note", noteSchema);
-  return NoteModel;
-};
+export default mongoose.model("Note", noteSchema);

@@ -68,16 +68,18 @@ h1 {
   align-items: center;
   margin-bottom: 12px;
   transition: 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .note-item:hover {
-  background: #f0f0ff;
+  transform: translateY(-2px);
 }
 
 /* Important notes */
 .note-item.important {
   border-left: 6px solid #ffb400;
   background: #fff8e6;
+  box-shadow: 0 2px 6px rgba(255, 180, 0, 0.2);
 }
 
 /* Buttons */
@@ -120,4 +122,103 @@ h1 {
 
 .filter-btn:hover {
   background: #584ff2;
+}
+
+form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.login-input {
+  width: 100%;
+  max-width: 250px;
+  padding: 8px 12px;
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  outline: none;
+}
+.login-input:focus {
+  border-color: #6c63ff;
+}
+
+button {
+  transition: 0.2s;
+  font-weight: 500;
+}
+
+/*match all buttons */
+.actions button,
+.add-btn,
+.filter-btn,
+.login-btn {
+  font-family: inherit;
+  letter-spacing: 0.5px;
+}
+
+.notification {
+  text-align: center;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  color: white;
+}
+
+.notification.error {
+  background: #ff4e4e;
+}
+
+.notification.success {
+  background: #4caf50;
+}
+
+/* Align filter and add note button nicely */
+.actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+/* User bar */
+.user-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 10px 15px;
+  background: #f0f0ff;
+  border-radius: 10px;
+  border: 1px solid #e3e3e3;
+}
+
+.user-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.logout-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  background: #ff4e4e;
+  color: white;
+}
+
+.logout-btn:hover {
+  background: #d93b3b;
+}
+.note-meta {
+  font-size: 0.8em;
+  color: #555;
+  margin-top: 4px;
 }

@@ -1,6 +1,4 @@
 import mongoose from "mongoose";
-import { getConnection } from "../utils/connections.js";
-import config from "../utils/config.js";
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   name: String,
@@ -15,12 +13,5 @@ userSchema.set("toJSON", {
     delete ret.passwordHash;
   },
 });
-// Cache the model after first connection
-let UserModel;
 
-export const getUserModel = async (url = process.env.MONGO_USER) => {
-  if (UserModel) return UserModel;
-  const conn = await getConnection(url);
-  UserModel = conn.model("User", userSchema);
-  return UserModel;
-};
+export default mongoose.model("User", userSchema);

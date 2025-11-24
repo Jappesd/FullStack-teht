@@ -5,20 +5,37 @@ import noteService from "./services/notes";
 import logger from "../utils/logger.js";
 import MessageNotification from "./components/MessageNotification";
 import LoginForm from "./components/LoginForm.jsx";
+import UserForm from "./components/UserForm.jsx";
 const App = (props) => {
   const [showAll, setShowAll] = useState(true);
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState("");
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [notification, setNotification] = useState({
+    message: null,
+    type: null,
+  });
   const [user, setUser] = useState(null);
+  const [showUserForm, setShowUserForm] = useState(false);
   useEffect(() => {
-    noteService.getAll().then((response) => {
-      setNotes(response.data);
-    });
+    const loggedUserJSON = window.localStorage.getItem("loggedUser");
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      noteService.setToken(user.token);
+    }
+    noteService
+      .getAll()
+      .then((response) => {
+        setNotes(response);
+        //logger.info(notes);
+      })
+      .catch((err) => {
+        logger.error("Failed to fetch notes", err);
+      });
   }, []);
 
   const handleLogin = (event) => {
-    logger.info(`Loggin attempt with user:${username}`);
+    //logger.info(`Loggin attempt with user:${username}`);
   };
 
   const deleteNote = (id) => {
@@ -28,45 +45,76 @@ const App = (props) => {
         .then(() => {
           setNotes(notes.filter((n) => n.id !== id));
         })
-        .catch((err) => console.log("Error deleting note: ", err.message));
+        .catch((err) => {
+          if (err.response?.status === 403) {
+            setNotification({
+              message: "You can only delete your own notes",
+              type: "error",
+            });
+          } else {
+            setNotification({ message: "Error deleting note", type: "error" });
+          }
+          setTimeout(() => {
+            setNotification({ message: null, type: null });
+          }, 2000);
+        });
     }
   };
   const toggleImportanceOf = (id) => {
     //logger.info("notes:", notes);
-    logger.info("toggling id:", id);
+    // logger.info("toggling id:", id);
     const note = notes.find((n) => n.id === id);
     if (!note) return;
-    const changedNote = { ...note, important: !note.important };
+    const changedNote = { important: !note.important };
 
     noteService
       .update(id, changedNote)
       .then((response) => {
-        setNotes(notes.map((n) => (n.id === response.id ? response : n)));
+        setNotes(notes.map((n) => (n.id === id ? response : n)));
       })
       .catch((error) => {
-        setErrorMessage(
-          `Note '${note.content}' was already removed from server`
-        );
+        setNotification({
+          message: `Note '${note.content}' was already removed from server`,
+          type: "error",
+        });
         setTimeout(() => {
-          setErrorMessage(null);
+          setNotification({ message: null, type: null });
         }, 5000);
         setNotes(notes.filter((n) => n.id !== id));
       });
   };
   const addNote = (event) => {
     event.preventDefault();
-    const noteObject = {
-      content: newNote,
-      important: Math.random() > 0.5,
-    };
-    noteService.create(noteObject).then((response) => {
-      setNotes(notes.concat(response.data));
-      setNewNote("");
-    });
-  };
+    try {
+      const noteObject = {
+        content: newNote,
+        important: Math.random() > 0.5,
+      };
+      noteService.create(noteObject).then((note) => {
+        setNotes(notes.concat(note));
+        setNewNote("");
+        setNotification({
+          message: `Note added: "${note.content}"`,
+          type: "success",
+        });
+      });
 
+      setTimeout(() => setNotification({ message: null, type: null }));
+    } catch (err) {
+      logger.error(err);
+      setNotification({ message: "Failed to add note", type: "error" });
+      setTimeout(() => setNotification({ message: null, type: null }), 5000);
+    }
+  };
+  const handleLogout = () => {
+    window.localStorage.removeItem("loggedUser");
+    setUser(null);
+    noteService.setToken(null);
+    setNotification({ message: "Logged out successfully", type: "success" });
+    setTimeout(() => setNotification({ message: null, type: null }), 5000);
+  };
   const handleNoteChange = (event) => {
-    logger.info("note value", event.target.value);
+    //logger.info("note value", event.target.value);
     setNewNote(event.target.value);
   };
   const notesToShow = Array.isArray(notes)
@@ -78,40 +126,69 @@ const App = (props) => {
   //logger.info("notes: ", notes);
   return (
     <div className="app-container">
-      <LoginForm onLogin={handleLogin} />
+      {user && (
+        <div className="user-bar">
+          <span className="user-name">{user.name} logged in</span>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      )}
+      {!user && (
+        <LoginForm setUser={setUser} setNotification={setNotification} />
+      )}
+
       <h1>Notes</h1>
-      <MessageNotification message={errorMessage} />
+      <MessageNotification notification={notification} />
+
       <div>
-        <button
-          className="filter-btn"
-          onClick={() => {
-            logger.info("Toggling showAll to:", !showAll);
-            setShowAll(!showAll);
-          }}
-        >
+        <button className="filter-btn" onClick={() => setShowAll(!showAll)}>
           show {showAll ? "important" : "all"}
         </button>
-      </div>
-      <ul className="note-list">
-        {(notesToShow || []).map(
-          (note) =>
-            note && (
-              <Note
-                key={note.id}
-                note={note}
-                toggleImportance={() => toggleImportanceOf(note.id)}
-                deleteNote={() => deleteNote(note.id)}
-              />
-            )
-        )}
-      </ul>
 
-      <form onSubmit={addNote}>
-        <input value={newNote} onChange={handleNoteChange} />
-        <button className="add-btn" type="Submit">
-          Save
+        <button
+          className="filter-btn"
+          onClick={() => setShowUserForm(!showUserForm)}
+        >
+          {showUserForm ? "Back to Notes" : "Create New User"}
         </button>
-      </form>
+      </div>
+
+      {showUserForm ? (
+        <UserForm />
+      ) : (
+        <>
+          <ul className="note-list">
+            {notesToShow.map(
+              (note) =>
+                note && (
+                  <Note
+                    key={note.id}
+                    note={note}
+                    toggleImportance={
+                      user ? () => toggleImportanceOf(note.id) : null
+                    }
+                    deleteNote={() => deleteNote(note.id)}
+                    user={user}
+                  />
+                )
+            )}
+          </ul>
+
+          <form onSubmit={addNote}>
+            <input
+              className="note-input"
+              value={newNote}
+              onChange={handleNoteChange}
+              disabled={!user}
+            />
+            <button className="add-btn" type="submit" disabled={!user}>
+              Save
+            </button>
+          </form>
+        </>
+      )}
+
       <Footer />
     </div>
   );

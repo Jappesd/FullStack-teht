@@ -1,14 +1,11 @@
 import { Router } from "express";
-import { getNoteModel } from "../models/note.js";
-import { getUserModel } from "../models/users.js";
-
+import Note from "../models/note.js";
+import { userExtractor } from "../utils/middleware.js";
 const noteRouter = Router();
 
 // get all notes
 noteRouter.get("/", async (req, res, next) => {
   try {
-    const Note = await getNoteModel();
-    const User = await getUserModel();
     const notes = await Note.find({}).populate("user", {
       username: 1,
       name: 1,
@@ -22,7 +19,6 @@ noteRouter.get("/", async (req, res, next) => {
 // find by id
 noteRouter.get("/:id", async (req, res, next) => {
   try {
-    const Note = await getNoteModel();
     const note = await Note.findById(req.params.id);
     //ternary operator: if note exists, send it else 404
     note ? res.json(note) : res.status(404).end();
@@ -31,11 +27,12 @@ noteRouter.get("/:id", async (req, res, next) => {
   }
 });
 //post new note
-noteRouter.post("/", async (req, res, next) => {
+noteRouter.post("/", userExtractor, async (req, res, next) => {
   try {
-    const Note = await getNoteModel();
     const user = req.user; // comes from userExtractor
-
+    if (!user) {
+      return res.status(401).json({ error: "user missing or invalid" });
+    }
     // Ensure the notes array exists
     if (!user.notes) {
       user.notes = [];
@@ -60,9 +57,16 @@ noteRouter.post("/", async (req, res, next) => {
 });
 
 //delete note by id
-noteRouter.delete("/:id", async (req, res, next) => {
+noteRouter.delete("/:id", userExtractor, async (req, res, next) => {
   try {
-    const Note = await getNoteModel();
+    const note = await Note.findById(req.params.id);
+    if (!note) return res.status(404).end();
+    // only owner of the post can delete it (or admin later)
+    if (note.user.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ error: "Forbidden: you can only delete your own posts" });
+    }
     await Note.findByIdAndDelete(req.params.id);
     res.status(204).end();
   } catch (err) {
@@ -71,14 +75,15 @@ noteRouter.delete("/:id", async (req, res, next) => {
 });
 
 //update note's important state
-noteRouter.put("/:id", async (req, res, next) => {
+noteRouter.put("/:id", userExtractor, async (req, res, next) => {
   try {
-    const Note = await getNoteModel();
     const updated = await Note.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
     res.json(updated);
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default noteRouter;

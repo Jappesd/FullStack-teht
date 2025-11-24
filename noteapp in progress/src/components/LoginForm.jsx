@@ -1,17 +1,31 @@
 import { useState } from "react";
-
-const LoginForm = ({ onLogin }) => {
+import { login } from "../services/login.js";
+import noteService from "../services/notes.js";
+import logger from "../../utils/logger.js";
+const LoginForm = ({ setUser, setNotification }) => {
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleSubmit = (event) => {
+  const [error, setError] = useState(null);
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    //call the parent handler with the credentials
-    onLogin({ username, password });
+    try {
+      const user = await login({
+        username: username.trim(),
+        password: password.trim(),
+      });
 
-    //reset fields after submit
-    setPassword("");
-    setUserName("");
+      window.localStorage.setItem("loggedUser", JSON.stringify(user));
+
+      noteService.setToken(user.token);
+      setUser(user);
+      setNotification({ message: `Welcome ${user.name}!`, type: "success" });
+      setTimeout(() => setNotification({ message: null, type: null }), 5000);
+      setUserName("");
+      setPassword("");
+    } catch (error) {
+      setNotification({ message: "Invalid credentials", type: "error" });
+      setTimeout(() => setNotification({ message: null, type: null }), 5000);
+    }
   };
 
   return (
@@ -24,7 +38,8 @@ const LoginForm = ({ onLogin }) => {
             <input
               type="text"
               value={username}
-              onChange={({ target }) => setUserName(target.value)}
+              onChange={(e) => setUserName(e.target.value)}
+              className="login-input"
             />
           </label>
         </div>
@@ -32,13 +47,15 @@ const LoginForm = ({ onLogin }) => {
           <label>
             password
             <input
+              className="login-input"
               type="password"
               value={password}
-              onChange={({ target }) => setPassword(target.value)}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </label>
         </div>
         <button type="submit">login</button>
+        {error && <div>{error}</div>}
       </form>
     </div>
   );

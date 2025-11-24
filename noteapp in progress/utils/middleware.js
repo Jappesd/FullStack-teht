@@ -1,6 +1,6 @@
 import logger from "./logger.js";
 import jwt from "jsonwebtoken";
-import { getUserModel } from "../models/users.js";
+import User from "../models/users.js";
 
 // logs every request
 export const requestLogger = (req, res, next) => {
@@ -25,17 +25,23 @@ export const tokenExtractor = (req, res, next) => {
 // User extractor middleware
 export const userExtractor = async (req, res, next) => {
   const token = req.token;
-  if (!token) return res.status(401).json({ error: "token missing" });
+
+  if (!token) {
+    return res.status(401).json({ error: "token missing" });
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.SECRET);
 
-    if (!decoded.id) return res.status(401).json({ error: "token invalid" });
+    if (!decoded.id) {
+      return res.status(401).json({ error: "token invalid" });
+    }
 
-    const User = await getUserModel();
     req.user = await User.findById(decoded.id);
 
-    if (!req.user) return res.status(401).json({ error: "user not found" });
+    if (!req.user) {
+      return res.status(401).json({ error: "user not found" });
+    }
 
     next();
   } catch (error) {

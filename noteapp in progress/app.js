@@ -6,6 +6,7 @@ import {
   tokenExtractor,
   unknownEndpoint,
   errorHandler,
+  userExtractor,
 } from "./utils/middleware.js";
 import userRouter from "./controllers/userRouter.js";
 import loginRouter from "./controllers/login.js";
@@ -16,6 +17,7 @@ app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
 app.use(tokenExtractor);
+
 //routes
 app.use("/api/notes", noteRouter);
 app.use("/api/users", userRouter);
