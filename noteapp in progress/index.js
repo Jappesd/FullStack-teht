@@ -3,7 +3,10 @@ import logger from "./utils/logger.js";
 import mongoose from "mongoose";
 import path from "path";
 import express from "express";
-const __dirname = path.resolve();
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 mongoose
   .connect(process.env.MONGODB_URI)
