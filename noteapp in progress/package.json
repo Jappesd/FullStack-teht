@@ -8,6 +8,7 @@
     "dev": "vite",
     "start": "node index.js",
     "build": "vite build",
+    "start:prod": "npm run build && node index.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
