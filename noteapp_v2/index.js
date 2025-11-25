@@ -23,6 +23,6 @@ mongoose
   .catch((err) => logger.error("Error connecting to MongoDB", err.message));
 
 // 3. Catch-all route *AFTER* static + API
-app.get("*", (req, res) => {
+app.get("/.*/", (req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
