@@ -1,7 +1,7 @@
 import app from "./app.js";
 import logger from "./utils/logger.js";
 import mongoose from "mongoose";
-import path from "path";
+import path, { dirname } from "path";
 import express from "express";
 import { fileURLToPath } from "url";
 
@@ -16,13 +16,14 @@ mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
     logger.info("Connected to mongoDB");
-    app.listen(process.env.PORT, () => {
-      logger.info(`Server running on port ${process.env.PORT}`);
-    });
   })
   .catch((err) => logger.error("Error connecting to MongoDB", err.message));
 
 // 3. Catch-all route *AFTER* static + API
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
+
+app.listen(process.env.PORT, () => {
+  logger.info(`Server running on port ${process.env.PORT}`);
 });
