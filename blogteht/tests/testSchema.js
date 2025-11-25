@@ -1,3 +1,4 @@
+// schema.js
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
@@ -23,21 +24,3 @@ userSchema.set("toJSON", {
 });
 
 export const User = mongoose.model("User", userSchema);
-
-const blogSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  author: { type: String, required: true },
-  url: String,
-  likes: { type: Number, default: 0 },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-});
-
-blogSchema.set("toJSON", {
-  transform: (doc, ret) => {
-    ret.id = ret._id.toString();
-    delete ret._id;
-    delete ret.__v;
-  },
-});
-
-export const Blog = mongoose.model("Blog", blogSchema);
