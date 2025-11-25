@@ -12,7 +12,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import userRouter from "./controllers/userRouter.js";
 import loginRouter from "./controllers/login.js";
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
 
 //middleware
