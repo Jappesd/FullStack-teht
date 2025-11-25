@@ -109,8 +109,7 @@ const App = (props) => {
         showNotification(
           setNotification,
           `Note added: "${note.content}"`,
-          "success",
-          1000
+          "success"
         );
       })
       .catch((err) => {
