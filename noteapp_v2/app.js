@@ -27,9 +27,6 @@ app.use(express.static(path.join(__dirname, "dist")));
 app.use("/api/notes", noteRouter);
 app.use("/api/users", userRouter);
 app.use("/api/login", loginRouter);
-//unknown endpoints and error handler
-app.use(unknownEndpoint);
-app.use(errorHandler);
 // 3. Catch-all route *AFTER* static + API
 app.use((req, res, next) => {
   if (req.method === "GET" && !req.path.startsWith("/api")) {
@@ -38,5 +35,9 @@ app.use((req, res, next) => {
     next();
   }
 });
+
+//unknown endpoints and error handler
+app.use(unknownEndpoint);
+app.use(errorHandler);
 
 export default app;
