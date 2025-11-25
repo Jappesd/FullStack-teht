@@ -97,9 +97,8 @@ const App = (props) => {
           message: `Note added: "${note.content}"`,
           type: "success",
         });
+        setTimeout(() => setNotification({ message: null, type: null }), 1000);
       });
-
-      setTimeout(() => setNotification({ message: null, type: null }));
     } catch (err) {
       logger.error(err);
       setNotification({ message: "Failed to add note", type: "error" });
