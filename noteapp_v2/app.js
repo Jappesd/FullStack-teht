@@ -31,8 +31,12 @@ app.use("/api/login", loginRouter);
 app.use(unknownEndpoint);
 app.use(errorHandler);
 // 3. Catch-all route *AFTER* static + API
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
+app.use((req, res, next) => {
+  if (req.method === "GET" && !req.path.startsWith("/api")) {
+    res.sendFile(path.join(__dirname, "dist", "index.html"));
+  } else {
+    next();
+  }
 });
 
 export default app;
