@@ -33,17 +33,19 @@ const App = (props) => {
         logger.error("Failed to fetch notes", err);
       });
   }, []);
-
-  const handleLogin = (event) => {
-    //logger.info(`Loggin attempt with user:${username}`);
-  };
-
   const deleteNote = (id) => {
     if (window.confirm("Delete this note?")) {
       noteService
         .remove(id)
         .then(() => {
           setNotes(notes.filter((n) => n.id !== id));
+          setNotification({
+            message: "Note deleted successfully",
+            type: "success",
+          });
+          setTimeout(() => {
+            setNotification({ message: null, type: null });
+          }, 2000);
         })
         .catch((err) => {
           if (err.response?.status === 403) {
@@ -85,12 +87,15 @@ const App = (props) => {
   };
   const addNote = (event) => {
     event.preventDefault();
-    try {
-      const noteObject = {
-        content: newNote,
-        important: Math.random() > 0.5,
-      };
-      noteService.create(noteObject).then((note) => {
+
+    const noteObject = {
+      content: newNote,
+      important: Math.random() > 0.5,
+    };
+
+    noteService
+      .create(noteObject)
+      .then((note) => {
         setNotes(notes.concat(note));
         setNewNote("");
         setNotification({
@@ -98,13 +103,14 @@ const App = (props) => {
           type: "success",
         });
         setTimeout(() => setNotification({ message: null, type: null }), 1000);
+      })
+      .catch((err) => {
+        console.error(err);
+        setNotification({ message: "Failed to add note", type: "error" });
+        setTimeout(() => setNotification({ message: null, type: null }), 5000);
       });
-    } catch (err) {
-      logger.error(err);
-      setNotification({ message: "Failed to add note", type: "error" });
-      setTimeout(() => setNotification({ message: null, type: null }), 5000);
-    }
   };
+
   const handleLogout = () => {
     window.localStorage.removeItem("loggedUser");
     setUser(null);
