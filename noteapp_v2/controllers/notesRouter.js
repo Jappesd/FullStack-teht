@@ -1,6 +1,7 @@
 import { Router } from "express";
 import Note from "../models/note.js";
 import { userExtractor } from "../utils/middleware.js";
+import User from "../models/users.js";
 const noteRouter = Router();
 
 // get all notes
@@ -62,7 +63,7 @@ noteRouter.delete("/:id", userExtractor, async (req, res, next) => {
     const note = await Note.findById(req.params.id);
     if (!note) return res.status(404).end();
     // only owner of the post can delete it (or admin later)
-    if (note.user.toString() !== req.user._id.toString() && !user.isAdmin) {
+    if (note.user.toString() !== req.user._id.toString() && !req.user.isAdmin) {
       return res
         .status(403)
         .json({ error: "Forbidden: you can only delete your own posts" });
