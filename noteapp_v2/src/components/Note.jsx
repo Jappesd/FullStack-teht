@@ -20,7 +20,7 @@ const Note = ({ note, user, toggleImportance, deleteNote }) => {
               {label}
             </button>
           )}
-          {deleteNote && (
+          {user && (note.user.id === user.id || user.isAdmin) && (
             <button onClick={deleteNote} className="delete-btn">
               Delete
             </button>

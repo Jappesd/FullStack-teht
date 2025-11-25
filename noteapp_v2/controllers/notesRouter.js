@@ -62,7 +62,7 @@ noteRouter.delete("/:id", userExtractor, async (req, res, next) => {
     const note = await Note.findById(req.params.id);
     if (!note) return res.status(404).end();
     // only owner of the post can delete it (or admin later)
-    if (note.user.toString() !== req.user._id.toString()) {
+    if (note.user.toString() !== req.user._id.toString() && !user.isAdmin) {
       return res
         .status(403)
         .json({ error: "Forbidden: you can only delete your own posts" });

@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   name: String,
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
   passwordHash: { type: String, required: true },
   notes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Note" }],
 });
