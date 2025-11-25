@@ -12,15 +12,16 @@ import path from "path";
 import { fileURLToPath } from "url";
 import userRouter from "./controllers/userRouter.js";
 import loginRouter from "./controllers/login.js";
-// 1. Serve static frontend
-app.use(express.static(path.join(__dirname, "dist")));
+
 const app = express();
+
 //middleware
 app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
 app.use(tokenExtractor);
-
+// 1. Serve static frontend
+app.use(express.static(path.join(__dirname, "dist")));
 //routes
 app.use("/api/notes", noteRouter);
 app.use("/api/users", userRouter);
