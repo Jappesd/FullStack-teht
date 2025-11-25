@@ -33,32 +33,39 @@ const App = (props) => {
         logger.error("Failed to fetch notes", err);
       });
   }, []);
+
+  const showNotification = (
+    setNotification,
+    message,
+    type = "success",
+    duration = 2000
+  ) => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification({ message: null, type: null }), duration);
+  };
+
   const deleteNote = (id) => {
     if (window.confirm("Delete this note?")) {
       noteService
         .remove(id)
         .then(() => {
           setNotes(notes.filter((n) => n.id !== id));
-          setNotification({
-            message: "Note deleted successfully",
-            type: "success",
-          });
-          setTimeout(() => {
-            setNotification({ message: null, type: null });
-          }, 2000);
+          showNotification(
+            setNotification,
+            "Note deleted successfully",
+            "success"
+          );
         })
         .catch((err) => {
           if (err.response?.status === 403) {
-            setNotification({
-              message: "You can only delete your own notes",
-              type: "error",
-            });
+            showNotification(
+              setNotification,
+              "You can only delete your own notes",
+              "error"
+            );
           } else {
-            setNotification({ message: "Error deleting note", type: "error" });
+            showNotification(setNotification, "Error deleting note", "error");
           }
-          setTimeout(() => {
-            setNotification({ message: null, type: null });
-          }, 2000);
         });
     }
   };
@@ -85,6 +92,7 @@ const App = (props) => {
         setNotes(notes.filter((n) => n.id !== id));
       });
   };
+
   const addNote = (event) => {
     event.preventDefault();
 
@@ -98,16 +106,16 @@ const App = (props) => {
       .then((note) => {
         setNotes(notes.concat(note));
         setNewNote("");
-        setNotification({
-          message: `Note added: "${note.content}"`,
-          type: "success",
-        });
-        setTimeout(() => setNotification({ message: null, type: null }), 1000);
+        showNotification(
+          setNotification,
+          `Note added: "${note.content}"`,
+          "success",
+          1000
+        );
       })
       .catch((err) => {
         console.error(err);
-        setNotification({ message: "Failed to add note", type: "error" });
-        setTimeout(() => setNotification({ message: null, type: null }), 5000);
+        showNotification(setNotification, "Failed to add note", "error", 3000);
       });
   };
 
