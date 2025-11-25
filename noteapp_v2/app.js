@@ -8,9 +8,12 @@ import {
   errorHandler,
   userExtractor,
 } from "./utils/middleware.js";
+import path from "path";
+import { fileURLToPath } from "url";
 import userRouter from "./controllers/userRouter.js";
 import loginRouter from "./controllers/login.js";
-
+// 1. Serve static frontend
+app.use(express.static(path.join(__dirname, "dist")));
 const app = express();
 //middleware
 app.use(cors());
@@ -25,5 +28,9 @@ app.use("/api/login", loginRouter);
 //unknown endpoints and error handler
 app.use(unknownEndpoint);
 app.use(errorHandler);
+// 3. Catch-all route *AFTER* static + API
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
 
 export default app;
