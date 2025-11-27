@@ -22,19 +22,19 @@ app.use(express.json());
 app.use(requestLogger);
 app.use(tokenExtractor);
 // 1. Serve static frontend
-// app.use(express.static(path.join(__dirname, "dist")));
-//routes
+app.use(express.static(path.join(__dirname, "dist")));
+routes
 app.use("/api/notes", noteRouter);
 app.use("/api/users", userRouter);
 app.use("/api/login", loginRouter);
 // 3. Catch-all route *AFTER* static + API
-// app.use((req, res, next) => {
-//   if (req.method === "GET" && !req.path.startsWith("/api")) {
-//     res.sendFile(path.join(__dirname, "dist", "index.html"));
-//   } else {
-//     next();
-//   }
-// });
+app.use((req, res, next) => {
+  if (req.method === "GET" && !req.path.startsWith("/api")) {
+    res.sendFile(path.join(__dirname, "dist", "index.html"));
+  } else {
+    next();
+  }
+});
 
 //unknown endpoints and error handler
 app.use(unknownEndpoint);
