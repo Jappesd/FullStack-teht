@@ -54,7 +54,9 @@ const LoginForm = ({ setUser, setNotification }) => {
             />
           </label>
         </div>
-        <button type="submit">login</button>
+        <button className="login-btn" type="submit">
+          login
+        </button>
         {error && <div>{error}</div>}
       </form>
     </div>

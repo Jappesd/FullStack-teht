@@ -1,101 +1,185 @@
-/* Global styles */
+/* Global */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f7f7f7;
+  font-family: system-ui, sans-serif;
+  background: #f7f7f7;
   margin: 0;
   padding: 20px;
 }
 
+/* App Container */
+.app-container {
+  max-width: 700px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Headings */
+h1,
+h2,
+h3 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
 /* Notification messages */
 .blog-notification {
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 5px;
-  font-weight: bold;
-  border: 1px solid;
+  text-align: center;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  color: white;
 }
 
 .blog-notification.success {
-  color: green;
-  border-color: green;
-  background-color: #e6ffe6;
+  background-color: #4caf50;
 }
 
 .blog-notification.error {
-  color: red;
-  border-color: red;
-  background-color: #ffe6e6;
+  background-color: #ff4e4e;
 }
 
-/* Login form */
+/* Forms */
 .login-form,
 .blog-form {
-  background-color: white;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   margin-bottom: 20px;
-  max-width: 400px;
 }
 
 .login-form input,
 .blog-form input {
   width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  box-sizing: border-box;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  outline: none;
+}
+
+.login-form input:focus,
+.blog-form input:focus {
+  border-color: #6c63ff;
 }
 
 .login-form button,
-.blog-form button {
-  padding: 8px 12px;
+.blog-form button,
+.create-blog-btn,
+.view-btn,
+.delete-btn,
+.like-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
-  background-color: #1976d2;
+  transition: 0.2s;
+}
+
+/* Login / Add Blog / Create New Blog buttons */
+.login-form button,
+.blog-form button,
+.create-blog-btn {
+  background: #6c63ff;
   color: white;
-  font-weight: bold;
 }
 
 .login-form button:hover,
-.blog-form button:hover {
-  background-color: #135ba1;
-}
-
-/* Blog list */
-.blog {
-  background-color: white;
-  padding: 10px 15px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.blog a {
-  color: #1976d2;
-  text-decoration: none;
-}
-
-.blog a:hover {
-  text-decoration: underline;
+.blog-form button:hover,
+.create-blog-btn:hover {
+  background: #584ff2;
 }
 
 /* Logged-in user display */
-p {
-  font-weight: bold;
+.user-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 10px 15px;
+  background: #f0f0ff;
+  border-radius: 10px;
+  border: 1px solid #e3e3e3;
 }
 
-p button {
-  margin-left: 10px;
-  padding: 4px 8px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  background-color: #d32f2f;
+.user-bar .logout-btn {
+  background: #ff4e4e;
   color: white;
-  font-weight: bold;
 }
 
-p button:hover {
-  background-color: #9a2222;
+.user-bar .logout-btn:hover {
+  background: #d93b3b;
+}
+
+/* Blog list items */
+.blog-item {
+  background: #fafafa;
+  border: 1px solid #e3e3e3;
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.blog-item span {
+  font-weight: 500;
+}
+
+/* Buttons inside blogs */
+.blog-item button {
+  margin-left: 8px;
+}
+
+/* View / Like / Delete buttons */
+.view-btn {
+  background: #6c63ff;
+  color: white;
+}
+
+.view-btn:hover {
+  background: #584ff2;
+}
+
+.like-btn {
+  background: #4caf50;
+  color: white;
+  margin-left: 8px;
+}
+
+.like-btn:hover {
+  background: #449d48;
+}
+
+.delete-btn {
+  background: #ff4e4e;
+  color: white;
+  margin-left: 8px;
+}
+
+.delete-btn:hover {
+  background: #d93b3b;
+}
+
+/* Blog details */
+.blog-details {
+  margin-top: 10px;
+  padding: 10px;
+  background: #fff8e6;
+  border-left: 6px solid #ffb400;
+  border-radius: 8px;
+}
+/* Blog list container */
+.blog-list {
+  list-style: none; /* removes bullets */
+  padding: 0; /* removes default padding */
+  margin: 0; /* removes default margin */
+}
+
+.blog-list li {
+  margin-bottom: 12px; /* spacing between items */
 }

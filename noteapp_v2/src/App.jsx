@@ -10,6 +10,7 @@ const App = (props) => {
   const [showAll, setShowAll] = useState(true);
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState("");
+  const [showLogin, setShowLogin] = useState(false);
   const [notification, setNotification] = useState({
     message: null,
     type: null,
@@ -147,12 +148,23 @@ const App = (props) => {
         </div>
       )}
       {!user && (
-        <LoginForm setUser={setUser} setNotification={setNotification} />
+        <div style={{ textAlign: "center", marginBottom: "15px" }}>
+          <button
+            className="login-btn"
+            onClick={() => setShowLogin(!showLogin)}
+          >
+            {showLogin ? "Cancel" : "Login"}
+          </button>
+
+          {showLogin && (
+            <LoginForm setUser={setUser} setNotification={setNotification} />
+          )}
+        </div>
       )}
-
-      <h1>Notes</h1>
-      <MessageNotification notification={notification} />
-
+      <div className="header-container">
+        <h1>Notes</h1>
+        <MessageNotification notification={notification} />
+      </div>
       <div>
         <button className="filter-btn" onClick={() => setShowAll(!showAll)}>
           show {showAll ? "important" : "all"}

@@ -1,12 +1,11 @@
-import { useState, useEffect } from "react";
-import Blog from "./components/Blog.jsx";
-import BlogForm from "./components/BlogForm.jsx";
+import { useRef, useState, useEffect } from "react";
 import LoginForm from "./components/LoginForm.jsx";
 import Notification from "./components/Notification.jsx";
 import blogService from "./services/blogService.js";
 import loginService from "./services/loginService.js";
-
+import BlogSection from "./components/BlogSection.jsx";
 const App = () => {
+  const blogFormRef = useRef();
   // State
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
@@ -28,6 +27,19 @@ const App = () => {
       blogService.setToken(user.token);
     }
   }, []);
+  //like handler
+  const handleLike = async (id) => {
+    const blogToUpdate = blogs.find((b) => b.id === id);
+    const updatedBlog = { ...blogToUpdate, likes: blogToUpdate.likes + 1 };
+
+    // send only likes to the backend
+    await blogService.update(id, { likes: updatedBlog.likes });
+
+    // update state locally without touching the user field
+    setBlogs(
+      blogs.map((b) => (b.id === id ? { ...b, likes: updatedBlog.likes } : b))
+    );
+  };
 
   // Fetch blogs only when logged in
   useEffect(() => {
@@ -41,7 +53,20 @@ const App = () => {
     setNotification({ message, type });
     setTimeout(() => setNotification({ message: null, type: null }), duration);
   };
-
+  //deleterer
+  const handleDelete = async (id) => {
+    const blogToDelete = blogs.find((b) => b.id === id);
+    if (!window.confirm(`Delete blog "${blogToDelete.title}"`)) return;
+    try {
+      await blogService.remove(id); //sends the request to delete with auth token
+      //remove deleted blog from state
+      setBlogs(blogs.filter((b) => b.id !== id));
+      showNotification("Blog deleted successfully", "success", 2000);
+    } catch (error) {
+      console.log(error);
+      showNotification("Error deleting post", "error", 3000);
+    }
+  };
   // Login handler
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -54,6 +79,7 @@ const App = () => {
       setPassword("");
       showNotification(`Welcome ${user.name}`, "success");
     } catch (err) {
+      console.log(err);
       showNotification("Wrong credentials", "error", 3000);
     }
   };
@@ -71,13 +97,15 @@ const App = () => {
       const newBlog = await blogService.create(blogObject);
       setBlogs(blogs.concat(newBlog));
       showNotification(`Blog added: "${newBlog.title}"`, "success", 2000);
+      blogFormRef.current.toggleVisibility();
     } catch (err) {
+      console.log(err);
       showNotification("Failed to add blog", "error", 4000);
     }
   };
 
   return (
-    <div>
+    <div className="app-container">
       <h2>Blog App</h2>
       <Notification notification={notification} />
 
@@ -97,18 +125,21 @@ const App = () => {
       {/* Logged-in view */}
       {user && (
         <>
-          <p>
-            {user.name} logged in <button onClick={handleLogout}>Logout</button>
+          <p className="user-bar">
+            {user.name} logged in{" "}
+            <button className="logout-btn" onClick={handleLogout}>
+              Logout
+            </button>
           </p>
-
-          <BlogForm addBlog={addBlog} />
-
-          <h3>Blogs</h3>
-          {blogs
-            .sort((a, b) => b.likes - a.likes) // optional sorting
-            .map((blog) => (
-              <Blog key={blog.id} blog={blog} />
-            ))}
+          {/*Blog section with toggleable new blog form*/}
+          <BlogSection
+            addBlog={addBlog}
+            user={user}
+            blogs={blogs}
+            blogFormRef={blogFormRef}
+            handleLike={handleLike}
+            handleDelete={handleDelete}
+          />
         </>
       )}
     </div>

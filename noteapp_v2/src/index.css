@@ -222,3 +222,52 @@ button {
   color: #555;
   margin-top: 4px;
 }
+
+/* Login toggle button */
+.login-btn {
+  background: #6c63ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.login-btn:hover {
+  background: #584ff2;
+}
+.header-container {
+  text-align: center; /* Center the header */
+  margin-bottom: 30px;
+}
+
+.header-container h1 {
+  display: inline-block;
+  font-size: 2.5rem;
+  font-weight: 700;
+
+  /* Gradient text */
+  background: linear-gradient(90deg, #6c63ff, #584ff2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* Floating effect box */
+  padding: 12px 24px;
+  border-radius: 12px;
+
+  /* Transparent border for subtle structure */
+  border: 2px solid rgba(0, 0, 0, 0.05);
+
+  /* Shadow makes it "float" */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.header-container h1:hover {
+  transform: translateY(-3px) scale(1.05); /* float up slightly */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}

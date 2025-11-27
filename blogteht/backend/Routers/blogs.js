@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { Blog, User } from "../connections/Schema.js";
-
+import middleware from "../utils/middleware.js";
 const blogsRouter = Router();
-
+const userExtractor = middleware.userExtractor;
 // get all blogs
 blogsRouter.get("/", async (req, res) => {
   try {
@@ -23,11 +23,11 @@ blogsRouter.get("/:id", async (req, res, next) => {
   }
 });
 //post new blog
-blogsRouter.post("/", async (req, res, next) => {
+blogsRouter.post("/", userExtractor, async (req, res, next) => {
   try {
     const { title, author, url, likes } = req.body;
 
-    if (!title || !url) {
+    if (!title) {
       return res.status(400).json({ error: "title and url are required" });
     }
     const user = req.user;
@@ -76,7 +76,7 @@ blogsRouter.put("/:id", async (req, res, next) => {
   }
 });
 // delete a blog by id
-blogsRouter.delete("/:id", async (req, res, next) => {
+blogsRouter.delete("/:id", userExtractor, async (req, res, next) => {
   try {
     const user = req.user;
     if (!user) {
