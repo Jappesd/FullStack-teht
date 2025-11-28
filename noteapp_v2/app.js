@@ -23,7 +23,7 @@ app.use(requestLogger);
 app.use(tokenExtractor);
 // 1. Serve static frontend
 app.use(express.static(path.join(__dirname, "dist")));
-routes
+//routes
 app.use("/api/notes", noteRouter);
 app.use("/api/users", userRouter);
 app.use("/api/login", loginRouter);
