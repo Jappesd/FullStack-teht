@@ -30,6 +30,7 @@ const UserForm = () => {
         <div>
           <label>Username</label>
           <input
+            data-testid="newuser-username"
             value={username}
             onChange={(e) => setUserName(e.target.value)}
           />
@@ -37,6 +38,7 @@ const UserForm = () => {
         <div>
           <label>Name</label>
           <input
+            data-testid="newuser-fullname"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
           />
@@ -44,12 +46,15 @@ const UserForm = () => {
         <div>
           <label>Password</label>
           <input
+            data-testid="newuser-password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button type="submit">Create User</button>
+        <button data-testid="newuser-submit" type="submit">
+          Create User
+        </button>
       </form>
     </div>
   );

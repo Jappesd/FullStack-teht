@@ -4,3 +4,10 @@ dist
 frontend/node_modules
 frontend/dist
 backend/node_modules
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

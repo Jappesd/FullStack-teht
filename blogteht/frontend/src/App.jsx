@@ -127,7 +127,11 @@ const App = () => {
         <>
           <p className="user-bar">
             {user.name} logged in{" "}
-            <button className="logout-btn" onClick={handleLogout}>
+            <button
+              data-testid="logout-btn"
+              className="logout-btn"
+              onClick={handleLogout}
+            >
               Logout
             </button>
           </p>

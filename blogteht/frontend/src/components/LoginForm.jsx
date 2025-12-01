@@ -10,24 +10,28 @@ const LoginForm = ({
   return (
     <form onSubmit={handleLogin}>
       <div>
-        Username:{' '}
+        Username:{" "}
         <input
+          data-testid="login-user"
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
       </div>
       <div>
-        Password:{' '}
+        Password:{" "}
         <input
+          data-testid="login-pass"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      <button type="submit">Login</button>
+      <button data-testid="login-btn" type="submit">
+        Login
+      </button>
     </form>
-  )
-}
+  );
+};
 
-export default LoginForm
+export default LoginForm;

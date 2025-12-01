@@ -150,6 +150,7 @@ const App = (props) => {
       {!user && (
         <div style={{ textAlign: "center", marginBottom: "15px" }}>
           <button
+            data-testid="login-btn"
             className="login-btn"
             onClick={() => setShowLogin(!showLogin)}
           >
@@ -201,12 +202,18 @@ const App = (props) => {
 
           <form onSubmit={addNote}>
             <input
+              data-testid="note-input"
               className="note-input"
               value={newNote}
               onChange={handleNoteChange}
               disabled={!user}
             />
-            <button className="add-btn" type="submit" disabled={!user}>
+            <button
+              data-testid="note-submit"
+              className="add-btn"
+              type="submit"
+              disabled={!user}
+            >
               Save
             </button>
           </form>

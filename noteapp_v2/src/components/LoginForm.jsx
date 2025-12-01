@@ -36,6 +36,7 @@ const LoginForm = ({ setUser, setNotification }) => {
           <label>
             username
             <input
+              data-testid="login-username"
               type="text"
               value={username}
               onChange={(e) => setUserName(e.target.value)}
@@ -47,6 +48,7 @@ const LoginForm = ({ setUser, setNotification }) => {
           <label>
             password
             <input
+              data-testid="login-password"
               className="login-input"
               type="password"
               value={password}
@@ -54,7 +56,7 @@ const LoginForm = ({ setUser, setNotification }) => {
             />
           </label>
         </div>
-        <button className="login-btn" type="submit">
+        <button data-testid="login-submit" className="login-btn" type="submit">
           login
         </button>
         {error && <div>{error}</div>}
