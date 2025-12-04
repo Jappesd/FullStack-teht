@@ -1,14 +1,14 @@
 import { useDispatch } from "react-redux";
-import { createNote } from "../reducers/noteReducer";
+import { appendNote } from "../reducers/noteReducer";
 
 const NoteForm = () => {
   const dispatch = useDispatch();
 
-  const addNote = (e) => {
+  const addNote = async (e) => {
     e.preventDefault();
     const content = e.target.note.value;
     e.target.note.value = "";
-    dispatch(createNote(content));
+    dispatch(appendNote(content));
   };
   return (
     <form onSubmit={addNote}>

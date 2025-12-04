@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleImportanceOf } from "../reducers/noteReducer";
 
 const Note = ({ note, handleClick }) => {
+  //console.log(note.content);
   return (
     <li onClick={handleClick}>
       {note.content}
@@ -13,6 +14,7 @@ const Note = ({ note, handleClick }) => {
 const Notes = () => {
   const dispatch = useDispatch();
   const notes = useSelector((state) => {
+    //console.log("notes from selector:", state);
     if (state.filter === "ALL") {
       return state.notes;
     }

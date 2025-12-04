@@ -1,10 +1,18 @@
 import NoteForm from "./components/noteForm";
 import Notes from "./components/Notes";
 import VisibilityFilter from "./components/VisibilityFilter";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { initializeNotes } from "./reducers/noteReducer";
+import noteService from "./services/notes.js";
+
 const App = () => {
-  const filteredSelection = (value) => {
-    console.log(value);
-  };
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(initializeNotes());
+  }, [dispatch]);
+
   return (
     <div>
       <NoteForm />
