@@ -9,8 +9,8 @@ const Note = ({ note, user, toggleImportance, deleteNote }) => {
   const [wiggle, setWiggle] = useState(false);
   // Each note updates its own emoji every 3–7 seconds randomly
   useEffect(() => {
-    const minInterval = 2000; // 2s
-    const maxInterval = 7000; // 7s
+    const minInterval = 900; // 2s
+    const maxInterval = 2000; // 7s
 
     const randomTime = () =>
       Math.floor(Math.random() * (maxInterval - minInterval)) + minInterval;

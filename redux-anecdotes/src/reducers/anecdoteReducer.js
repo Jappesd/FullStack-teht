@@ -21,7 +21,7 @@ const anecdoteSlice = createSlice({
 });
 const { createAnecdote, setState, vote } = anecdoteSlice.actions;
 
-export const initializeState = () => {
+export const getAnecs = () => {
   return async (dispatch) => {
     const fetchedanec = await anecService.getAll();
     const anecs = fetchedanec.map((n) => ({

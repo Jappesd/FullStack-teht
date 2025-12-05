@@ -1,23 +1,17 @@
 import AnecdoteList from "./components/AnecdoteList";
 import AnecdoteForm from "./components/AnecdoteForm";
-import Filter from "./components/Filter";
 import Notification from "./components/Notification";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { initializeState } from "./reducers/anecdoteReducer";
-
+import { useState } from "react";
 const App = () => {
-  const disp = useDispatch();
-
-  useEffect(() => {
-    disp(initializeState());
-  }, [disp]);
-
+  const [notif, setNotif] = useState("");
+  const notify = (msg) => {
+    setNotif(msg);
+    setTimeout(() => setNotif(""), 2000);
+  };
   return (
     <div>
-      <Notification />
-      <Filter />
-      <AnecdoteList />
+      <Notification message={notif} />
+      <AnecdoteList notify={notify} />
       <AnecdoteForm />
     </div>
   );

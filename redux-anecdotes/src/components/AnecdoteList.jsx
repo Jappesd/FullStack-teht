@@ -1,32 +1,53 @@
-import { useSelector, useDispatch } from "react-redux";
-import { updateAnec } from "../reducers/anecdoteReducer";
-import { showNotification } from "../reducers/notificationReducer";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-const AnecdoteList = () => {
-  const dispatch = useDispatch();
-  const anecs = useSelector((state) => state.anecdotes);
-  const filter = useSelector((state) => state.filter);
-  console.log(anecs);
-  const visibleAnecs = anecs
-    .filter((a) => a.content.toLowerCase().includes(filter.toLowerCase()))
-    .sort((a, b) => b.votes - a.votes);
+import { getAnecs, voteAnec } from "../requests";
 
+const AnecdoteList = ({ notify }) => {
+  const queryClient = useQueryClient();
+
+  const {
+    data: anecdotes,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["anecdotes"],
+    queryFn: getAnecs,
+    retry: 1,
+  });
+
+  const voteMutation = useMutation({
+    mutationFn: voteAnec,
+    onSuccess: (updated) => {
+      const current = queryClient.getQueryData(["anecdotes"]);
+      queryClient.setQueryData(
+        ["anecdotes"],
+        current.map((a) => (a.id === updated.id ? updated : a))
+      );
+    },
+  });
+  if (isLoading) return <p>loading...</p>;
+  if (isError) return <p>server error</p>;
   const voter = (anec) => {
-    dispatch(updateAnec(anec));
-    dispatch(showNotification(`You voted for "${anec.content}"`), 5000);
+    voteMutation.mutate(anec, {
+      onSuccess: () => {
+        notify(`You voted for '${anec.content}'`);
+      },
+    });
   };
   return (
     <div>
       <h2>Anecdotes</h2>
-      {visibleAnecs.map((a) => (
-        <div key={a.id}>
-          <div>{a.content}</div>
-          <div>
-            has {a.votes}
-            <button onClick={() => voter(a)}>vote</button>
+      {[...anecdotes]
+        .sort((a, b) => b.votes - a.votes)
+        .map((a) => (
+          <div key={a.id}>
+            <div>{a.content}</div>
+            <div>
+              has {a.votes}
+              <button onClick={() => voter(a)}>vote</button>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
     </div>
   );
 };

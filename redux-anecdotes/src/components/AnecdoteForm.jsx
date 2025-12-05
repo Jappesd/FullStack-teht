@@ -1,22 +1,32 @@
-import { useDispatch } from "react-redux";
-import { creator } from "../reducers/anecdoteReducer";
-import { showNotification } from "../reducers/notificationReducer";
-import anecService from "../services/anecdotes";
-const AnecdoteForm = () => {
-  const dispatch = useDispatch();
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createAnec } from "../requests";
 
-  const addNew = async (e) => {
+const AnecdoteForm = () => {
+  const [content, setContent] = useState("");
+  const queryClient = useQueryClient();
+  const newAnecMutation = useMutation({
+    mutationFn: createAnec,
+    onSuccess: (newAnec) => {
+      const current = queryClient.getQueryData(["anecdotes"]);
+      queryClient.setQueryData(["anecdotes"], current.concat(newAnec));
+    },
+  });
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const cont = e.target.note.value;
-    if (!cont) return;
-    dispatch(creator(cont));
-    e.target.note.value = "";
+    if (content.trim().length < 5) {
+      alert("anecdote must be atleast 5 characters");
+      return;
+    }
+    newAnecMutation.mutate({ content });
+    setContent("");
   };
   return (
     <div>
       <h2>Create new</h2>
-      <form onSubmit={addNew}>
-        <input name="note" />
+      <form onSubmit={handleSubmit}>
+        <input value={content} onChange={(e) => setContent(e.target.value)} />
         <button type="submit">create</button>
       </form>
     </div>
