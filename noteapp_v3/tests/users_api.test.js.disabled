@@ -1,0 +1,100 @@
+import { test, describe, before, after, beforeEach } from "node:test";
+import assert from "node:assert";
+import request from "supertest";
+import app from "../app.js";
+import { getConnection, closeConnections } from "../utils/connections.js";
+import { getUserModel } from "../models/users.js";
+import bcrypt from "bcrypt";
+import mongoose from "mongoose";
+
+const api = request(app);
+
+let server;
+
+before(async () => {
+  //start server on ephemeral port (so it can be closed later)
+
+  // Connect to test DBs
+  await getConnection(process.env.TEST_MONGODB);
+});
+
+// Clean users from DB before each test
+beforeEach(async () => {
+  const User = await getUserModel();
+  await User.deleteMany({});
+
+  const users = [
+    {
+      username: "sammy",
+      name: "Sam",
+      passwordHash: await bcrypt.hash("secret123", 10),
+    },
+    {
+      username: "alice",
+      name: "Alice",
+      passwordHash: await bcrypt.hash("mypassword", 10),
+    },
+  ];
+  await User.insertMany(users);
+});
+
+// Close connections after all tests
+after(async () => {
+  await closeConnections();
+  //if (server) await server.close();
+  // Allow node to flush remaining handles
+  // await new Promise((res) => setImmediate(res));
+});
+
+// Test GET /api/users
+describe("GET /api/users", () => {
+  test("returns all users", async () => {
+    const res = await api
+      .get("/api/users")
+      .expect(200)
+      .expect("Content-Type", /application\/json/);
+
+    assert.strictEqual(res.body.length, 2);
+
+    const usernames = res.body.map((u) => u.username);
+    assert.ok(usernames.includes("sammy"));
+    assert.ok(usernames.includes("alice"));
+
+    // Make sure passwordHash is not returned in response
+    res.body.forEach((user) => {
+      assert.strictEqual(user.passwordHash, undefined);
+    });
+  });
+});
+
+// Test POST /api/users
+describe("POST /api/users", () => {
+  test("creates a new user with valid data", async () => {
+    const newUser = {
+      username: "bob",
+      name: "Bob",
+      password: "mypassword",
+    };
+
+    const res = await api
+      .post("/api/users")
+      .send(newUser)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
+
+    assert.strictEqual(res.body.username, newUser.username);
+    assert.ok(res.body.id, "Response should have an id");
+    assert.strictEqual(res.body.name, newUser.name);
+    assert.strictEqual(res.body.passwordHash, undefined);
+
+    // Verify directly from DB
+    const User = await getUserModel();
+    const userInDB = await User.findOne({ username: newUser.username });
+    assert.ok(userInDB, "user should be saved to db");
+  });
+
+  test("Fails with 400 if username or password missing", async () => {
+    const newUser = { name: "noUserName" };
+    await api.post("/api/users").send(newUser).expect(400);
+  });
+});

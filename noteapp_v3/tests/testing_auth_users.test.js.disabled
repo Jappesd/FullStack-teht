@@ -1,0 +1,78 @@
+import { test, describe, beforeEach, before, after } from "node:test";
+import assert from "node:assert";
+import request from "supertest";
+import app from "../app.js";
+import { getUserModel } from "../models/users.js";
+import { getNoteModel } from "../models/note.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { closeConnections } from "../utils/connections.js";
+const api = request(app);
+
+let token;
+let userId;
+let User;
+let Note;
+before(async () => {
+  User = await getUserModel();
+  Note = await getNoteModel();
+});
+beforeEach(async () => {
+  // Clean users and notes
+  await User.deleteMany({});
+  await Note.deleteMany({});
+
+  // Create a test user
+  const passwordHash = await bcrypt.hash("secret123", 10);
+  const user = await User.create({
+    username: "sammy",
+    name: "Sam",
+    passwordHash,
+  });
+
+  userId = user.id;
+
+  // Generate JWT for the test user
+  token = jwt.sign({ id: user.id }, process.env.SECRET);
+});
+
+after(async () => {
+  await closeConnections();
+});
+
+describe("POST /api/notes with authentication", () => {
+  test("successfully creates a note for logged-in user", async () => {
+    const newNote = {
+      content: "Test note content",
+      important: true,
+    };
+
+    const res = await api
+      .post("/api/notes")
+      .set("Authorization", `Bearer ${token}`) // attach token
+      .send(newNote)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
+
+    // Validate response
+    assert.strictEqual(res.body.content, newNote.content);
+    assert.strictEqual(res.body.important, true);
+    assert.ok(res.body.user); // note should contain user ID
+
+    // Validate that user's notes array includes the note
+    const User = await getUserModel();
+    const user = await User.findById(userId).populate("notes");
+    assert.strictEqual(user.notes.length, 1);
+    assert.strictEqual(user.notes[0].content, newNote.content);
+  });
+
+  test("fails with 401 if token is missing", async () => {
+    const newNote = { content: "Should fail" };
+
+    await api
+      .post("/api/notes")
+      .send(newNote)
+      .expect(401)
+      .expect("Content-Type", /application\/json/);
+  });
+});
