@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./Note.css";
+import { Link } from "react-router-dom";
 const Note = ({ note, user, toggleImportance, deleteNote }) => {
   const emojis = ["📝", "✨", "⚡", "💡", "📌", "❤️"];
   const [emoji, setEmoji] = useState(
@@ -45,8 +46,23 @@ const Note = ({ note, user, toggleImportance, deleteNote }) => {
     <li
       data-testid={`note-${note.id}`}
       className={`note-item ${note.important ? "important" : ""}`}
+      style={{ position: "relative" }}
     >
-      <div>
+      <Link
+        to={`/notes/${note.id}`}
+        className="note-link-overlay"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 1,
+          textDecoration: "none",
+          color: "inherit",
+        }}
+      />
+      <div style={{ position: "relative", zIndex: 2 }}>
         <span
           id={`emoji-${note.id}`}
           className={`emoji ${fade ? "fade-in" : "fade-out"} ${

@@ -1,34 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import userService from "../services/userService.js";
-
+import { useNotification } from "../context/NotificationContext.jsx";
+import { useUser } from "../context/UserContext.jsx";
 const UserForm = () => {
+  const navigate = useNavigate();
   const [username, setUserName] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState(null);
-
+  const { user } = useUser();
+  const { showNotification } = useNotification();
+  useEffect(() => {
+    if (user) {
+      navigate("/notes", { replace: true });
+    }
+  }, [user, navigate]);
   const handleCreateUser = async (e) => {
     e.preventDefault();
     try {
       const newUser = { username, name: fullName, password };
       const createdUser = await userService.create(newUser);
 
-      setMessage(`User ${createdUser.username} created!`);
+      showNotification(`User ${createdUser.username} created!`);
       setUserName("");
       setFullName("");
       setPassword("");
     } catch (error) {
-      setMessage(error.response?.data?.error || "error creating user");
+      showNotification(
+        error.response?.data?.error || "error creating user",
+        "error"
+      );
     }
-    setTimeout(() => setMessage(null), 5000);
   };
   return (
     <div>
       <h2>Create New User</h2>
-      {message && <div>{message}</div>}
       <form onSubmit={handleCreateUser}>
         <div>
-          <label>Username</label>
+          <label>Username </label>
           <input
             data-testid="newuser-username"
             value={username}
@@ -36,7 +45,7 @@ const UserForm = () => {
           />
         </div>
         <div>
-          <label>Name</label>
+          <label>Name </label>
           <input
             data-testid="newuser-fullname"
             value={fullName}
@@ -44,7 +53,7 @@ const UserForm = () => {
           />
         </div>
         <div>
-          <label>Password</label>
+          <label>Password </label>
           <input
             data-testid="newuser-password"
             type="password"
@@ -52,7 +61,11 @@ const UserForm = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button data-testid="newuser-submit" type="submit">
+        <button
+          className="filter-btn"
+          data-testid="newuser-submit"
+          type="submit"
+        >
           Create User
         </button>
       </form>

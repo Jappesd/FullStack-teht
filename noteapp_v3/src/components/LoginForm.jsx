@@ -1,11 +1,21 @@
 import { useState } from "react";
 import { login } from "../services/login.js";
 import noteService from "../services/notes.js";
-import logger from "../../utils/logger.js";
-const LoginForm = ({ setUser, setNotification }) => {
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useNotification } from "../context/NotificationContext.jsx";
+import { useUser } from "../context/UserContext.jsx";
+const LoginForm = ({ setUser }) => {
+  const navigate = useNavigate();
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const { loginUser, user } = useUser();
+  const { showNotification, notification } = useNotification();
+  useEffect(() => {
+    if (user) {
+      navigate("/notes", { replace: true });
+    }
+  }, [user, navigate]);
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -17,20 +27,18 @@ const LoginForm = ({ setUser, setNotification }) => {
       window.localStorage.setItem("loggedUser", JSON.stringify(user));
 
       noteService.setToken(user.token);
-      setUser(user);
-      setNotification({ message: `Welcome ${user.name}!`, type: "success" });
-      setTimeout(() => setNotification({ message: null, type: null }), 5000);
+      loginUser(user);
+      showNotification(`Welcome ${user.name}!`, "success");
       setUserName("");
       setPassword("");
+      navigate("/notes", { replace: true });
     } catch (error) {
-      setNotification({ message: "Invalid credentials", type: "error" });
-      setTimeout(() => setNotification({ message: null, type: null }), 5000);
+      showNotification("Invalid credentials", "error");
     }
   };
 
   return (
     <div>
-      <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label>
@@ -59,7 +67,6 @@ const LoginForm = ({ setUser, setNotification }) => {
         <button data-testid="login-submit" className="login-btn" type="submit">
           login
         </button>
-        {error && <div>{error}</div>}
       </form>
     </div>
   );

@@ -1,228 +1,50 @@
-import { useEffect, useState } from "react";
-import Note from "./components/Note.jsx";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import NotesPage from "./pages/NotesPage";
+import CreateUserPage from "./pages/CreateUserPage";
+import LoginPage from "./pages/LoginPage";
+import SingleNotePage from "./pages/SingleNotePage";
+import { useState } from "react";
+import { useUser } from "./context/UserContext";
 import Footer from "./components/Footer";
-import noteService from "./services/notes";
-import logger from "../utils/logger.js";
 import MessageNotification from "./components/MessageNotification";
-import LoginForm from "./components/LoginForm.jsx";
-import UserForm from "./components/UserForm.jsx";
-const App = (props) => {
-  const [showAll, setShowAll] = useState(true);
-  const [notes, setNotes] = useState([]);
-  const [newNote, setNewNote] = useState("");
-  const [showLogin, setShowLogin] = useState(false);
-  const [notification, setNotification] = useState({
-    message: null,
-    type: null,
-  });
-  const [user, setUser] = useState(null);
-  const [showUserForm, setShowUserForm] = useState(false);
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("loggedUser");
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      noteService.setToken(user.token);
-    }
-    noteService
-      .getAll()
-      .then((response) => {
-        setNotes(response);
-        //logger.info(notes);
-      })
-      .catch((err) => {
-        logger.error("Failed to fetch notes", err);
-      });
-  }, []);
-
-  const showNotification = (
-    setNotification,
-    message,
-    type = "success",
-    duration = 2000
-  ) => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification({ message: null, type: null }), duration);
+import { useNotification } from "./context/NotificationContext";
+const App = () => {
+  const style = {
+    "text-decoration": "none",
   };
-
-  const deleteNote = (id) => {
-    if (window.confirm("Delete this note?")) {
-      noteService
-        .remove(id)
-        .then(() => {
-          setNotes(notes.filter((n) => n.id !== id));
-          showNotification(
-            setNotification,
-            "Note deleted successfully",
-            "success"
-          );
-        })
-        .catch((err) => {
-          if (err.response?.status === 403) {
-            showNotification(
-              setNotification,
-              "You can only delete your own notes",
-              "error"
-            );
-          } else {
-            showNotification(setNotification, "Error deleting note", "error");
-          }
-        });
-    }
-  };
-  const toggleImportanceOf = (id) => {
-    //logger.info("notes:", notes);
-    // logger.info("toggling id:", id);
-    const note = notes.find((n) => n.id === id);
-    if (!note) return;
-    const changedNote = { important: !note.important };
-
-    noteService
-      .update(id, changedNote)
-      .then((response) => {
-        setNotes(notes.map((n) => (n.id === id ? response : n)));
-      })
-      .catch((error) => {
-        setNotification({
-          message: `Note '${note.content}' was already removed from server`,
-          type: "error",
-        });
-        setTimeout(() => {
-          setNotification({ message: null, type: null });
-        }, 5000);
-        setNotes(notes.filter((n) => n.id !== id));
-      });
-  };
-
-  const addNote = (event) => {
-    event.preventDefault();
-
-    const noteObject = {
-      content: newNote,
-      important: Math.random() > 0.5,
-    };
-
-    noteService
-      .create(noteObject)
-      .then((note) => {
-        setNotes(notes.concat(note));
-        setNewNote("");
-        showNotification(
-          setNotification,
-          `Note added: "${note.content}"`,
-          "success"
-        );
-      })
-      .catch((err) => {
-        console.error(err);
-        showNotification(setNotification, "Failed to add note", "error", 3000);
-      });
-  };
-
-  const handleLogout = () => {
-    window.localStorage.removeItem("loggedUser");
-    setUser(null);
-    noteService.setToken(null);
-    setNotification({ message: "Logged out successfully", type: "success" });
-    setTimeout(() => setNotification({ message: null, type: null }), 5000);
-  };
-  const handleNoteChange = (event) => {
-    //logger.info("note value", event.target.value);
-    setNewNote(event.target.value);
-  };
-  const notesToShow = Array.isArray(notes)
-    ? showAll
-      ? notes
-      : notes.filter((note) => note.important)
-    : [];
-  //logger.info("notesToShow: ", notesToShow);
-  //logger.info("notes: ", notes);
+  const { notification } = useNotification();
+  const { user } = useUser();
   return (
-    <div className="app-container">
-      {user && (
-        <div className="user-bar">
-          <span className="user-name">{user.name} logged in</span>
-          <button className="logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
-      )}
-      {!user && (
-        <div style={{ textAlign: "center", marginBottom: "15px" }}>
-          <button
-            data-testid="login-btn"
-            className="login-btn"
-            onClick={() => setShowLogin(!showLogin)}
-          >
-            {showLogin ? "Cancel" : "Login"}
-          </button>
-
-          {showLogin && (
-            <LoginForm setUser={setUser} setNotification={setNotification} />
-          )}
-        </div>
-      )}
-      <div className="header-container">
-        <h1>Notes</h1>
+    <Router>
+      <div className="app-container">
+        {/* Notification */}
         <MessageNotification notification={notification} />
+        {!user && (
+          <nav className="actions-bar">
+            <Link style={style} className="filter-btn" to="/notes">
+              Notes
+            </Link>
+
+            <Link style={style} className="filter-btn" to="/create-user">
+              Create User
+            </Link>
+
+            <Link style={style} className="filter-btn" to="/login">
+              Login
+            </Link>
+          </nav>
+        )}
+
+        <Routes>
+          <Route path="/" element={<NotesPage />} />
+          <Route path="/notes" element={<NotesPage />} />
+          <Route path="/notes/:id" element={<SingleNotePage />} />
+          <Route path="/create-user" element={<CreateUserPage />} />
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
+        <Footer />
       </div>
-      <div>
-        <button className="filter-btn" onClick={() => setShowAll(!showAll)}>
-          show {showAll ? "important" : "all"}
-        </button>
-
-        <button
-          className="filter-btn"
-          onClick={() => setShowUserForm(!showUserForm)}
-        >
-          {showUserForm ? "Back to Notes" : "Create New User"}
-        </button>
-      </div>
-
-      {showUserForm ? (
-        <UserForm />
-      ) : (
-        <>
-          <ul className="note-list">
-            {notesToShow.map(
-              (note) =>
-                note && (
-                  <Note
-                    key={note.id}
-                    note={note}
-                    toggleImportance={
-                      user ? () => toggleImportanceOf(note.id) : null
-                    }
-                    deleteNote={() => deleteNote(note.id)}
-                    user={user}
-                  />
-                )
-            )}
-          </ul>
-
-          <form onSubmit={addNote}>
-            <input
-              data-testid="note-input"
-              className="note-input"
-              value={newNote}
-              onChange={handleNoteChange}
-              disabled={!user}
-            />
-            <button
-              data-testid="note-submit"
-              className="add-btn"
-              type="submit"
-              disabled={!user}
-            >
-              Save
-            </button>
-          </form>
-        </>
-      )}
-
-      <Footer />
-    </div>
+    </Router>
   );
 };
-
 export default App;
