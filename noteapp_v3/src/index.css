@@ -1,29 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+button {
+  @apply border-none focus:outline-none;
+}
+
 /* Global */
-body {
+/* body {
   background: #f7f7f7;
   font-family: system-ui, sans-serif;
   margin: 0;
   padding: 0;
-}
+} */
 
 /* App Container */
-.app-container {
+/* .app-container {
   max-width: 600px;
   margin: 40px auto;
   background: white;
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+} */
 
 /* Title */
-h1 {
+/* h1 {
   text-align: center;
   margin-bottom: 25px;
-}
+} */
 
 /* Input Form */
-.note-input {
+/* .note-input {
   width: 70%;
   padding: 8px 12px;
   font-size: 16px;
@@ -31,13 +38,13 @@ h1 {
   border: 1px solid #ddd;
   margin-right: 10px;
   outline: none;
-}
+} */
 
-.note-input:focus {
+/* .note-input:focus {
   border-color: #6c63ff;
-}
+} */
 
-.add-btn {
+/* .add-btn {
   padding: 8px 16px;
   font-size: 15px;
   border: none;
@@ -49,10 +56,10 @@ h1 {
 
 .add-btn:hover {
   background: #584ff2;
-}
+} */
 
 /* Notes List */
-.note-list {
+/* .note-list {
   list-style: none;
   padding: 0;
   margin-top: 25px;
@@ -73,17 +80,17 @@ h1 {
 
 .note-item:hover {
   transform: translateY(-2px);
-}
+} */
 
 /* Important notes */
-.note-item.important {
+/* .note-item.important {
   border-left: 6px solid #ffb400;
   background: #fff8e6;
   box-shadow: 0 2px 6px rgba(255, 180, 0, 0.2);
-}
+} */
 
 /* Buttons */
-.actions button {
+/* .actions button {
   margin-left: 8px;
   padding: 6px 12px;
   border-radius: 6px;
@@ -149,10 +156,10 @@ form {
 button {
   transition: 0.2s;
   font-weight: 500;
-}
+} */
 
 /*match all buttons */
-.actions button,
+/* .actions button,
 .add-btn,
 .filter-btn,
 .login-btn {
@@ -175,20 +182,20 @@ button {
 
 .notification.success {
   background: #4caf50;
-}
+} */
 
 /* Align filter and add note button nicely */
-.actions-bar {
+/* .actions-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 15px;
-}
+} */
 
 /* User bar */
-.user-bar {
+/* .user-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -221,10 +228,10 @@ button {
   font-size: 0.8em;
   color: #555;
   margin-top: 4px;
-}
+} */
 
 /* Login toggle button */
-.login-btn {
+/* .login-btn {
   background: #6c63ff;
   color: white;
   border: none;
@@ -239,35 +246,35 @@ button {
   background: #584ff2;
 }
 .header-container {
-  text-align: center; /* Center the header */
+  text-align: center; 
   margin-bottom: 30px;
-}
-
+} */
+/* 
 .header-container h1 {
   display: inline-block;
   font-size: 2.5rem;
   font-weight: 700;
 
-  /* Gradient text */
+
   background: linear-gradient(90deg, #6c63ff, #584ff2);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 
-  /* Floating effect box */
+
   padding: 12px 24px;
   border-radius: 12px;
 
-  /* Transparent border for subtle structure */
+
   border: 2px solid rgba(0, 0, 0, 0.05);
 
-  /* Shadow makes it "float" */
+
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
+} */
 
-.header-container h1:hover {
-  transform: translateY(-3px) scale(1.05); /* float up slightly */
+/* .header-container h1:hover {
+  transform: translateY(-3px) scale(1.05); 
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
-}
+} */

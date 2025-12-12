@@ -1,11 +1,21 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import noteService from "../services/notes";
 import logger from "../../utils/logger";
+import { Table } from "react-bootstrap";
 import Note from "../components/Note";
 import MessageNotification from "../components/MessageNotification";
 import UserForm from "../components/UserForm";
 import { useNotification } from "../context/NotificationContext";
 import { useUser } from "../context/UserContext";
+import {
+  TableContainer,
+  TableBody,
+  TableRow,
+  TableCell,
+  Paper,
+} from "@mui/material";
+
 const NotesPage = () => {
   const [showAll, setShowAll] = useState(true);
   const [notes, setNotes] = useState([]);
@@ -68,10 +78,15 @@ const NotesPage = () => {
     showNotification("Logged out successfully", "success");
   };
   const toggleImportanceOf = (id) => {
-    const note = notes.find(() => n.id === id);
+    const note = notes.find((n) => n.id === id);
     if (!note) return;
 
-    const changedNote = { ...note, important: !note.important };
+    const changedNote = {
+      ...note,
+      important: !note.important,
+      user: typeof note.user === "object" ? note.user.id : note.user,
+      date: note.createdAt,
+    };
 
     noteService
       .update(id, changedNote)
@@ -111,17 +126,19 @@ const NotesPage = () => {
         <UserForm />
       ) : (
         <>
-          <ul className="note-list">
+          <ul className="note-table">
             {notesToShow.map((note) => (
-              <Note
-                key={note.id}
-                note={note}
-                toggleImportance={
-                  user ? () => toggleImportanceOf(note.id) : null
-                }
-                deleteNote={() => deleteNote(note.id)}
-                user={user}
-              />
+              <li key={note.id}>
+                <Note
+                  key={note.id}
+                  note={note}
+                  toggleImportance={
+                    user ? () => toggleImportanceOf(note.id) : null
+                  }
+                  deleteNote={() => deleteNote(note.id)}
+                  user={user}
+                />
+              </li>
             ))}
           </ul>
 

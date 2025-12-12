@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { login } from "../services/login.js";
 import noteService from "../services/notes.js";
+import { TextField, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useNotification } from "../context/NotificationContext.jsx";
@@ -38,37 +39,42 @@ const LoginForm = ({ setUser }) => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>
-            username
-            <input
-              data-testid="login-username"
-              type="text"
-              value={username}
-              onChange={(e) => setUserName(e.target.value)}
-              className="login-input"
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            password
-            <input
-              data-testid="login-password"
-              className="login-input"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </label>
-        </div>
-        <button data-testid="login-submit" className="login-btn" type="submit">
-          login
-        </button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <div>
+        <TextField
+          data-testid="login-username"
+          label="Username"
+          type="text"
+          value={username}
+          onChange={(e) => setUserName(e.target.value)}
+          variant="outlined"
+          fullWidth
+          margin="normal"
+        />
+      </div>
+      <div>
+        <TextField
+          data-testid="login-password"
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          variant="outlined"
+          fullWidth
+          margin="normal"
+        />
+      </div>
+      <Button
+        data-testid="login-submit"
+        type="submit"
+        variant="contained"
+        color="primary"
+        fullWidth
+        sx={{ mt: 2 }}
+      >
+        login
+      </Button>
+    </form>
   );
 };
 

@@ -33,3 +33,6 @@
 .wiggle {
   animation: wiggleAnim 0.3s ease;
 }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
